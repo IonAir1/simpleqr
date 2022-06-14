@@ -2,9 +2,7 @@ import bitlyshortener
 import qrcode
 from PIL import Image
 import pandas as pd
-
-
-
+import os
 
 
 def generate_prefill(name, email, link): #generates a prefill link with the input
@@ -30,9 +28,16 @@ def generate_qr(url, name, destination):
     qr.make(fit=True)
     img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
     path = destination
+    
+    if not os.path.exists(path):
+        if path[-1] == "/":
+            path = path[:-1]
+        os.makedirs(path)
+    
     if not path[-1] == "/":
         path = path + "/"
     path = path + name + ".png"
+    
     img.save(path)
 
     
