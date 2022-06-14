@@ -13,5 +13,6 @@ setup(
         "pandas>=1.4.2",
         "Pillow>=9.1.1",
         "qrcode",
+        "openpyxl",
     ],
 )
