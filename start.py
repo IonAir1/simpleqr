@@ -1,8 +1,8 @@
 import argparse
 from argparse import RawTextHelpFormatter
 import sys as _sys
-import gui
 from main import Config
+import subprocess
 
 
 #custom help message
@@ -47,7 +47,10 @@ parser.add_argument("-r","--remove")
 args = parser.parse_args()
 
 if args.command == 'run':
-    print("open window")
+    try:
+        subprocess.run(['python3', 'gui.py'])
+    except:
+        subprocess.run(['python', 'gui.py'])
 elif args.command == 'gen' or args.command == 'generate':
     if args.add is None and args.remove is None and args.change is None:
         Config().run()
