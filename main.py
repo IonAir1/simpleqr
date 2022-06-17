@@ -10,6 +10,8 @@ class Config:
     invert_color = False
     progress_bar = None
     output_text = None
+    box_size = 10
+    border_size = 4
     
     #pass progress bar and output text object
     def assign_progress_bar(self, bar, text):
@@ -46,8 +48,13 @@ class Config:
             else:
                 val = False
             self.invert_color = val
-            
-            
+        if self.cfg.has_option('main','box_size') and (key == 'all' or key == 'box_size'):
+            val = self.cfg.get('main', 'box_size')
+            self.box_size = int(val)
+        if self.cfg.has_option('main','border_size') and (key == 'all' or key == 'border_size'):
+            val = self.cfg.get('main', 'border_size')
+            self.border_size = int(val)
+
         if key != 'all':
             return val
         else:
@@ -56,7 +63,9 @@ class Config:
                 'forms_link': self.forms_link,
                 'destination': self.destination,
                 'bitly_token': self.bitly_token,
-                'invert_color': self.invert_color
+                'invert_color': self.invert_color,
+                'box_size': self.box_size,
+                'border_size': self.border_size
             }
     
 
@@ -106,15 +115,10 @@ class Config:
                 self.save('bitly_token',new_tokens)
 
     def run(self):
-        self.read('all')
-        cfg = {
-            'excel_file': self.excel_file,
-            'forms_link': self.forms_link,
-            'destination': self.destination,
-            'bitly_token': self.bitly_token,
-            'invert_color': self.invert_color
-            }
-        Generate(cfg, self.progress_bar, self.output_text)
+        if self.progress_bar is None:
+            Generate(self.read('all'), None, None)
+        else:
+            Generate(self.read('all'), self.progress_bar, self.output_text)
 
         
         
@@ -181,14 +185,14 @@ class Generate():
         urls = prefill.shorten(cfg['bitly_token'],urls) #shorten links
 
         for i in range(len(data.keys())): #generate qr code
-            progress_bar['value'] += (1/total)*100
             print("generating qr code ("+str(i+1)+"/"+str(len(data.keys()))+")")
             if not progress_bar is None:
                 output_text.config(text="generating qr code ("+str(i+1)+"/"+str(len(data.keys()))+")")
+                progress_bar['value'] += (1/total)*100
                                
             item = list(data)[i]
             data[item].append(urls[i])
-            prefill.generate_qr(cfg['destination'],urls[i], str(data[item][0]), cfg['invert_color'])
+            prefill.generate_qr(cfg['destination'],urls[i], str(data[item][0]), cfg['invert_color'], cfg['box_size'], cfg['border_size'])
 
         print("Done!")
         if not output_text is None:

@@ -40,7 +40,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','destination','run','invert'],
+    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size'],
     nargs='?',
     default='run'
 )
@@ -92,6 +92,18 @@ elif args.command == 'invert':
             Config().save('invert_color', False)
     else:
         print(Config().read('invert_color'))
+
+elif args.command == 'box_size':
+    if args.change is not None:
+        Config().save('box_size', args.change)
+    else:
+        print(Config().read('box_size'))
+
+elif args.command == 'border_size':
+    if args.change is not None:
+        Config().save('boreder_size', args.change)
+    else:
+        print(Config().read('border_size'))
 
 else:
     print('Unknown command, type \"-h\" for help')

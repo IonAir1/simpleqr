@@ -20,8 +20,8 @@ bitly_token = data['bitly_token']
 ef_var = tk.StringVar(root, data['excel_file'])
 fl_var = tk.StringVar(root, data['forms_link'])
 df_var = tk.StringVar(root, data['destination'])
-bs_var = tk.IntVar()
-br_var = tk.IntVar()
+bs_var = tk.IntVar(root, data['box_size'])
+br_var = tk.IntVar(root, data['border_size'])
 ic_var = tk.BooleanVar(root, data['invert_color'])
 
 
@@ -100,7 +100,8 @@ bs = ttk.Frame(op)#box size frame
 bs.grid(column=0, row=0,padx=30, pady=10, sticky='w')
 bs.grid_columnconfigure(0, weight=1)
 
-bs_spinbox = ttk.Spinbox(bs, from_=0, to=100, width=3) #box size spinbox
+bs_spinbox = ttk.Spinbox(bs, textvariable=bs_var, from_=0, to=100, width=3) #box size spinbox
+bs_spinbox.bind("<FocusOut>", lambda event: config_instance.save('box_size', bs_var.get()))
 bs_spinbox.grid(column=0, row=0)
 
 bs_text = ttk.Label(bs, text='Box Size') #box size label
@@ -111,7 +112,8 @@ br = ttk.Frame(op) #border size frame
 br.grid(column=1, row=0,padx=20, pady=10, sticky='w')
 br.grid_columnconfigure(0, weight=1)
 
-br_spinbox = ttk.Spinbox(br, from_=0, to=100, width=3) #border size spinbox
+br_spinbox = ttk.Spinbox(br, textvariable=br_var, from_=0, to=100, width=3) #border size spinbox
+br_spinbox.bind("<FocusOut>", lambda event: config_instance.save('border_size', br_var.get()))
 br_spinbox.grid(column=0, row=0)
 
 br_text = ttk.Label(br, text='Border Size') #border size label

@@ -21,12 +21,12 @@ def shorten(bitly_token,urls):
 
 
 #generates an image of a qr code that links to specified url
-def generate_qr(destination,url, name, invert):
+def generate_qr(destination,url, name, invert, box, border):
     qr = qrcode.QRCode( #qr code properties
     version=1,
     error_correction=qrcode.constants.ERROR_CORRECT_L,
-    box_size=10,
-    border=4,
+    box_size=box,
+    border=border,
     )
     
     qr.add_data(url) #qr code data
