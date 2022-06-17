@@ -14,6 +14,5 @@ setup(
         "Pillow>=9.1.1",
         "qrcode",
         "openpyxl",
-        "pyautogui",
     ],
 )
