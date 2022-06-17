@@ -21,7 +21,7 @@ def shorten(bitly_token,urls):
 
 
 #generates an image of a qr code that links to specified url
-def generate_qr(destination,url, name):
+def generate_qr(destination,url, name, invert):
     qr = qrcode.QRCode( #qr code properties
     version=1,
     error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -31,7 +31,10 @@ def generate_qr(destination,url, name):
     
     qr.add_data(url) #qr code data
     qr.make(fit=True)
-    img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
+    if invert:
+        img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+    else:
+        img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
     path = destination
     if path == '':
         path = 'exports'
@@ -51,7 +54,8 @@ def read_file(file):
     items = {}
     n = 0
     empty = False
-    df = pd.read_excel(file, header=None)
+    xlsx = pd.ExcelFile(file)
+    df = pd.read_excel(xlsx, header=None)
     
     while not empty: #converts data frame to dictionary
         data = []

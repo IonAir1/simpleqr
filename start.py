@@ -15,18 +15,21 @@ enter any of the following commands:
 
                                 leave empty to open gui
 \'gen\' or \'generate\'             generate qr codes
-\'excel\'                         display excel file path
+\'excel'                         display excel file path
 \'excel -c <file>'               change excel file path
-\'destination\'                   display destination file path
+\'destination'                   display destination file path
 \'destination -c <path>'         change destination file path
-\'form\'                          display form link
+\'form'                          display form link
 \'form -c "<url>" '              change form link
-\'token\'                         display bitly tokens
+\'invert'                        show if invert colors in enabled
+\'invert -c t'                   enable invert colors
+\'invert -c f'                   disable invert colors
+\'token'                         display bitly tokens
 \'token -a <token>'              add bitly token
 \'token -a <token>,<token>,etc'  add bitly tokens
 \'token -r <token>'              remove bitly token
 \'token -r <token>,<token>,etc'  remove bitly tokens
-\'token -r all'                 remove all bitly token
+\'token -r all'                  remove all bitly token
     """
         file.write(message+"\n")
         
@@ -37,7 +40,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','destination','run'],
+    choices=['gen','generate','excel','form','token','destination','run','invert'],
     nargs='?',
     default='run'
 )
@@ -81,6 +84,15 @@ elif args.command == 'token':
             Config().token_change('remove', args.remove)
     elif args.add is None:
         print(str(Config().read('bitly_token')).translate({ord(c): None for c in '][,'}))
+elif args.command == 'invert':
+    if args.change is not None:
+        if args.change == 't' or args.change == 'true':
+            Config().save('invert_color', True)
+        elif args.change == 'f' or args.change == 'false':
+            Config().save('invert_color', False)
+    else:
+        print(Config().read('invert_color'))
+
 else:
     print('Unknown command, type \"-h\" for help')
 if args.change is not None and args.command == "token":
