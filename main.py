@@ -34,6 +34,13 @@ class Config:
             self.bitly_token = val
         if key != 'all':
             return val
+        else:
+            return {
+                'excel_file': self.excel_file,
+                'forms_link': self.forms_link,
+                'destination': self.destination,
+                'bitly_token': self.bitly_token
+            }
     
 
     #save data
@@ -49,6 +56,7 @@ class Config:
         self.cfg.set('main', str(key), val)
         with open('cfg.ini', 'w') as f:
             self.cfg.write(f)
+        print(key,' ', val)
 
     #change token to val
     def token_change(self, cmd, val):
