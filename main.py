@@ -93,12 +93,13 @@ class Config:
 
         if cmd == "add":
             if "," in val:
-                tokens = val.split(",")
+                val
+                tokens = [i for n, i in enumerate(val.replace(" ", "").split(",")) if i not in val.replace(" ", "").split(",")[:n]]
                 new_tokens += [x for x in tokens if x not in new_tokens]
                 new_tokens = list(filter(None, new_tokens))
                 self.save('bitly_token',new_tokens)
             elif not val in new_tokens:
-                new_tokens.append(val)
+                new_tokens.append(no_space)
                 self.save('bitly_token', new_tokens)
 
         if cmd == "remove":
