@@ -3,7 +3,7 @@
 *.ipynb
 exports
 *.pyc
-config.ini
+cfg.ini
 build
 dist
 prefillqr.egg-info
