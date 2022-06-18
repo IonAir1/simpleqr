@@ -99,7 +99,7 @@ class Config:
                 new_tokens = list(filter(None, new_tokens))
                 self.save('bitly_token',new_tokens)
             elif not val in new_tokens:
-                new_tokens.append(no_space)
+                new_tokens.append(val)
                 self.save('bitly_token', new_tokens)
 
         if cmd == "remove":

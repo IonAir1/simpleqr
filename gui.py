@@ -63,6 +63,7 @@ def generate():
     generate.start()
 
 
+
 def add_token():
     global bitly_token
     token = bt_add.get().replace(" ", "").split(",")
@@ -89,15 +90,15 @@ def show_token():
     for item in tree.get_children():
       tree.delete(item)
     if bt_show.get():
+        ba_entry['show'] = ''
         for element in bitly_token:
             tree.insert('', tk.END, values=element)
     else:
+        ba_entry['show'] = '*'
         for element in bitly_token:
             token = '*' * len(element)
             hidden_token.append(token)
             tree.insert('', tk.END, values=token)
-        
-    
     
 
 notebook = ttk.Notebook(root)
@@ -256,7 +257,13 @@ show_tokens = ttk.Checkbutton(ll,
                 offvalue=False)
 show_tokens.pack(side='left', padx=20)
 
-bt_rm = ttk.Button(ll, text='Remove', command=remove_token, takefocus=False)
-bt_rm.pack(side='right', padx=20)
+btn = ttk.Frame(ll)
+btn.pack(side='right', padx=10)
+
+btn_sl = ttk.Button(btn, text='Select all', command=lambda: tree.selection_set(tuple(tree.get_children())), takefocus=False)
+btn_sl.grid(column=0, row=0, padx=10)
+
+btn_rm = ttk.Button(btn, text='Remove', command=remove_token, takefocus=False)
+btn_rm.grid(column=1, row=0, padx=10)
 
 root.mainloop()
