@@ -28,6 +28,9 @@ hidden_token = []
 bt_add = tk.StringVar()
 bt_show = tk.BooleanVar(root, False)
 
+cd_add_cd = tk.StringVar()
+cd_add_rp = tk.StringVar()
+
 
 #open window for selecting excel file
 def select_excel_file():
@@ -78,10 +81,10 @@ def add_token():
     show_token()
 
 def remove_token():
-    selected_iid = tree.selection()
+    selected_iid = bt_tree.selection()
     tokens = []
     for element in selected_iid:
-        tokens.append(bitly_token[(tree.index(element))])
+        tokens.append(bitly_token[(bt_tree.index(element))])
     for element in tokens:
         bitly_token.remove(element)
     config_instance.token_change('remove', ','.join(tokens), bt_show.get())
@@ -89,31 +92,40 @@ def remove_token():
 
     
 def show_token():
-    for item in tree.get_children():
-      tree.delete(item)
+    for item in bt_tree.get_children():
+      bt_tree.delete(item)
     if bt_show.get():
         ba_entry['show'] = ''
         for element in bitly_token:
-            tree.insert('', tk.END, values=element)
+            bt_tree.insert('', tk.END, values=element)
     else:
         ba_entry['show'] = '*'
         for element in bitly_token:
             token = '*' * len(element)
             hidden_token.append(token)
-            tree.insert('', tk.END, values=token)
+            bt_tree.insert('', tk.END, values=token)
     
 def hide_token(x):
     bt_show.set(False)
     show_token()
     
+def add_code():
+    pass
+
+def remove_code():
+    pass
+
 notebook = ttk.Notebook(root)
 notebook.pack(fill='x', side='top')
 notebook.bind("<<NotebookTabChanged>>", hide_token)
 st = ttk.Frame(notebook, width=400, height=280)
+cd = ttk.Frame(notebook, width=400, height=280)
 bt = ttk.Frame(notebook, width=400, height=280)
 st.pack(fill='both', expand=True)
+cd.pack(fill='both', expand=True)
 bt.pack(fill='both', expand=True)
 notebook.add(st, text='Settings')
+notebook.add(cd, text='Codes')
 notebook.add(bt, text='Bitly Tokens')
 
 
@@ -258,10 +270,10 @@ ba_button.grid(column=1, row=0, padx=10)
 
 
 columns = ('tokens')
-tree = ttk.Treeview(bt, columns=columns, show=["headings"])
-tree.heading('tokens', text='Tokens')
-#tree.bind('<<TreeviewSelect>>', item_selected)
-tree.pack(fill='x', expand=True, padx=20, pady=10)
+bt_tree = ttk.Treeview(bt, columns=columns, show=["headings"])
+bt_tree.heading('tokens', text='Tokens')
+#bt_tree.bind('<<bt_TreeviewSelect>>', item_selected)
+bt_tree.pack(fill='x', expand=True, padx=20, pady=10)
 show_token()
 
 ll = ttk.Frame(bt)
@@ -275,13 +287,56 @@ show_tokens = ttk.Checkbutton(ll,
                 offvalue=False)
 show_tokens.pack(side='left', padx=20)
 
-btn = ttk.Frame(ll)
-btn.pack(side='right', padx=10)
+bt_btn = ttk.Frame(ll)
+bt_btn.pack(side='right', padx=10)
 
-btn_sl = ttk.Button(btn, text='Select all', command=lambda: tree.selection_set(tuple(tree.get_children())), takefocus=False)
-btn_sl.grid(column=0, row=0, padx=10)
+bt_btn_sl = ttk.Button(bt_btn, text='Select all', command=lambda: bt_tree.selection_set(tuple(bt_tree.get_children())), takefocus=False)
+bt_btn_sl.grid(column=0, row=0, padx=10)
 
-btn_rm = ttk.Button(btn, text='Remove', command=remove_token, takefocus=False)
-btn_rm.grid(column=1, row=0, padx=10)
+bt_btn_rm = ttk.Button(bt_btn, text='Remove', command=remove_token, takefocus=False)
+bt_btn_rm.grid(column=1, row=0, padx=10)
 
+
+
+
+
+cd_label = ttk.Label(cd, text='G Forms Codes')
+cd_label.pack(side='top', anchor='nw', padx=10, pady=10)
+
+
+
+ca = ttk.Frame(cd)
+ca.pack(padx=10, pady=10)
+
+ca_entry_cd = ttk.Entry(ca, textvariable=cd_add_cd, width=34, takefocus=False)
+ca_entry_cd.grid(column=0, row=0, padx=5)
+ca_entry_cd.bind('<Control-a>', lambda x: ca_entry_cd.selection_range(0, 'end') or "break")
+
+ca_entry_rp = ttk.Entry(ca, textvariable=cd_add_rp, width=15, takefocus=False)
+ca_entry_rp.grid(column=1, row=0, padx=5)
+ca_entry_rp.bind('<Control-a>', lambda x: ca_entry_rp.selection_range(0, 'end') or "break")
+
+ca_button = ttk.Button(ca, text='Add', command=add_code, takefocus=False)
+ca_button.grid(column=2, row=0, padx=15)
+
+
+columns = ('code', 'replacement')
+cd_tree = ttk.Treeview(cd, columns=columns, show=["headings"])
+cd_tree.heading('code', text='Code')
+cd_tree.heading('replacement', text='Replacement Column')
+#cd_tree.bind('<<cd_TreeviewSelect>>', item_selected)
+cd_tree.pack(fill='x', expand=True, padx=20, pady=10)
+show_token()
+
+ll = ttk.Frame(cd)
+ll.pack(fill='x', expand=True)
+
+cd_btn = ttk.Frame(ll)
+cd_btn.pack(side='right', padx=10)
+
+cd_btn_sl = ttk.Button(cd_btn, text='Select all', command=lambda: cd_tree.selection_set(tuple(cd_tree.get_children())), takefocus=False)
+cd_btn_sl.grid(column=0, row=0, padx=10)
+
+cd_btn_rm = ttk.Button(cd_btn, text='Remove', command=remove_code, takefocus=False)
+cd_btn_rm.grid(column=1, row=0, padx=10)
 root.mainloop()

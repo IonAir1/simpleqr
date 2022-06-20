@@ -1,5 +1,9 @@
 from configparser import ConfigParser
-import prefill
+import pandas as pd
+import bitlyshortener
+import qrcode
+from PIL import Image
+import os
 
 class Config:
     cfg = ConfigParser()
@@ -13,6 +17,11 @@ class Config:
     starting_cell = 'A1'
     box_size = 10
     border_size = 4
+    code = {
+        'filename': 'A',
+        'name': 'B+A',
+        'email': 'C'
+        }
     
     #pass progress bar and output text object
     def assign_progress_bar(self, bar, text):
@@ -128,7 +137,7 @@ class Config:
 
     def run(self):
         if self.progress_bar is None:
-            Generate(self.read('all'), None, None)
+            Generate(self.read('all'), None, None, self.code)
         else:
             Generate(self.read('all'), self.progress_bar, self.output_text)
 
@@ -141,7 +150,7 @@ class Config:
         
         
 class Generate():
-    def __init__(self, cfg, progress_bar, output_text):
+    def __init__(self, cfg, progress_bar, output_text, code):
         #initiate progress bar and output text
         if not progress_bar is None:
             output_text.config(text="Starting...")
@@ -163,50 +172,111 @@ class Generate():
                 output_text.config(text="No bitly tokens added")
             return
         
+        #set data frame with starting cell
+        c = ord(cfg['starting_cell'][0].upper()) - ord('A')
+        r = int(cfg['starting_cell'][1]) - 1
+        df = pd.read_excel(pd.ExcelFile(cfg['excel_file']), skiprows=r, header=None)
+        if c > 0:
+            for i in range(c):
+                del df[df.columns[0]]
+        #parse filenames
+        filenames = self.parse_filenames(df, code['filename'])
+        #generate prefill links
+        urls = self.generate_links(cfg['forms_link'], df, code, filenames)
+        #shorten links
+        urls = self.shorten(cfg['bitly_token'], urls)
+        #generate qr codes
+        for n in range(len(filenames)):
+            self.generate_qr(cfg['destination'], urls[n], filenames[n], cfg['invert_color'], cfg['box_size'], cfg['border_size'])
         
-        #read data
-        data = prefill.read_file(cfg['excel_file'], cfg['starting_cell'])
+
+    #parse data frame and get filenames
+    def parse_filenames(self, df, code):
+        filenames = []
+        fn_columns = list(code.upper())
+        for letter in range(len(fn_columns)):
+            fn_columns[letter] = ord(fn_columns[letter].upper()) - ord('A')
+        fn_columns = list(filter((-22).__ne__, fn_columns))
+
+        fn_list = list(df.iloc[:, fn_columns[0]])
+        
+        #find how many qr codes to be generated
+        length = 0
+        for row in range(len(fn_list)+1):
+            length = row
+            stop = False
+            try:
+                if pd.isnull(fn_list[row]):
+                    stop = True
+            except:
+                break
+            if stop == True:
+                break
+        
+        #find and remove rows after the length
+        length = len(fn_list) - length
+        for i in range(length):
+            del fn_list[-1]
+        
+        #combine columns if required
+        if len(fn_columns) > 1:
+            fn = fn_list
+            filenames = fn
+            for rc in range(len(fn_columns)-1):
+                fn = ['{} '.format(elem) for elem in filenames]
+                filenames = [i + j for i, j in zip(fn, list(df.iloc[:, fn_columns[rc+1]]))]   
+        else:
+            filenames = fn_list
+        return filenames
+
+    
+    #generate links from data frame
+    def generate_links(self, forms_link, df, code, fn):
         urls = []
-        ammount = len(data)
-        total = len(data)*4
-        if not progress_bar is None:
-            progress_bar.grid(column=0, row=1, padx=20, pady=5, sticky='ew')
-            progress_bar['value'] = (ammount/total)*100
+        for n in range(len(fn)):
+            link = forms_link
+            for cd in code.keys():
+                if cd != 'filename':
+                    cd_list = code[cd].upper().split('+')
+                    ans = ''
+                    for cl in cd_list:
+                        ans += df.iloc[n, ord(cl) - ord('A')] + ' '
+                    link = link.replace('='+cd,ans.strip())
+            urls.append(link)
+        return urls
+
     
-    
-        for i in range(len(data.keys())): #generate prefilled link
-            print("generating prefilled link ("+str(i+1)+"/"+str(len(data.keys()))+")")
-            if not progress_bar is None:
-                progress_bar['value'] += (1/total)*100
-                output_text.config(text="generating prefilled link ("+str(i+1)+"/"+str(len(data.keys()))+")") 
-                
-            item = list(data)[i]
-            last_name = data[item][0]
-            first_name = data[item][1]
-            email = data[item][2]
-            url = prefill.generate_prefill(cfg['forms_link'],str(first_name) + " " + str(last_name), str(email))
-            data[item].append(url)
-            urls.append(url)
+    #shorten links with bitly
+    def shorten(self, bitly_token,urls): 
+        shortener = bitlyshortener.Shortener(tokens=bitly_token)
+        urls= shortener.shorten_urls(urls)
+        return urls
 
-        print("Shortening urls...")
-        if not progress_bar is None:
-            progress_bar['value'] += ammount
-            output_text.config(text="Shortening urls...")
 
-        
-        urls = prefill.shorten(cfg['bitly_token'],urls) #shorten links
+    #generates an image of a qr code that links to specified url
+    def generate_qr(self, destination, url, name, invert, box, border):
+        qr = qrcode.QRCode( #qr code properties
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=box,
+        border=border,
+        )
 
-        for i in range(len(data.keys())): #generate qr code
-            print("generating qr code ("+str(i+1)+"/"+str(len(data.keys()))+")")
-            if not progress_bar is None:
-                output_text.config(text="generating qr code ("+str(i+1)+"/"+str(len(data.keys()))+")")
-                progress_bar['value'] += (1/total)*100
-                               
-            item = list(data)[i]
-            data[item].append(urls[i])
-            prefill.generate_qr(cfg['destination'],urls[i], str(data[item][0]), cfg['invert_color'], cfg['box_size'], cfg['border_size'])
+        qr.add_data(url) #qr code data
+        qr.make(fit=True)
+        if invert:
+            img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+        else:
+            img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
+        path = destination
+        if path == '':
+            path = 'exports'
+        if not os.path.exists(path): #generate path
+            if path[-1] == "/":
+                path = path[:-1]
+            os.makedirs(path)
+        if not path[-1] == "/":
+            path = path + "/"
+        path = path + name + ".png"
 
-        print("Done!")
-        if not output_text is None:
-            progress_bar['value'] = 100
-            output_text.config(text="Done!")
+        img.save(path) #save
