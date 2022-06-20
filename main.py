@@ -10,6 +10,7 @@ class Config:
     invert_color = False
     progress_bar = None
     output_text = None
+    starting_cell = 'A1'
     box_size = 10
     border_size = 4
     
@@ -48,6 +49,9 @@ class Config:
             else:
                 val = False
             self.invert_color = val
+        if self.cfg.has_option('main','starting_cell') and (key == 'all' or key == 'starting_cell'):
+            val = self.cfg.get('main', 'starting_cell')
+            self.starting_cell = val
         if self.cfg.has_option('main','box_size') and (key == 'all' or key == 'box_size'):
             val = self.cfg.get('main', 'box_size')
             self.box_size = int(val)
@@ -64,15 +68,17 @@ class Config:
                 'destination': self.destination,
                 'bitly_token': self.bitly_token,
                 'invert_color': self.invert_color,
+                'starting_cell': self.starting_cell,
                 'box_size': self.box_size,
                 'border_size': self.border_size
             }
     
 
     #save data
-    def save(self, key, val):
+    def save(self, key, val, prnt):
         if key == "bitly_token":
             val = ",".join(val)
+            
         else:
             self.read('all')
             val = val
@@ -82,25 +88,30 @@ class Config:
         self.cfg.set('main', str(key), str(val))
         with open('cfg.ini', 'w') as f:
             self.cfg.write(f)
-        print('save ' + str(key) + ' as ' + str(val))
+        if prnt:
+            print('save ' + str(key) + ' as ' + str(val))
 
     #change token to val
-    def token_change(self, cmd, val):
+    def token_change(self, cmd, val, prnt):
         self.read('all')
         new_tokens = self.bitly_token
         if cmd == "clear":
-            self.save('bitly_token', [''])
+            self.save('bitly_token', [''], prnt)
 
         if cmd == "add":
             if "," in val:
                 val
-                tokens = [i for n, i in enumerate(val.replace(" ", "").split(",")) if i not in val.replace(" ", "").split(",")[:n]]
-                new_tokens += [x for x in tokens if x not in new_tokens]
+                tokens = val.replace(" ", "").split(',')
+                new_tokens = [i for n, i in enumerate(tokens) if i not in tokens[:n]]
                 new_tokens = list(filter(None, new_tokens))
-                self.save('bitly_token',new_tokens)
+                
+                self.save('bitly_token',new_tokens, prnt)
             elif not val in new_tokens:
+                tokens = val.replace(" ", "")
                 new_tokens.append(val)
-                self.save('bitly_token', new_tokens)
+                if new_tokens == '':
+                    return
+                self.save('bitly_token', new_tokens, prnt)
 
         if cmd == "remove":
             if "," in val:
@@ -110,10 +121,10 @@ class Config:
                     if element in new_tokens:
                         new_tokens.remove(element)
                 new_tokens = list(filter(None, new_tokens))
-                self.save('bitly_token',new_tokens)
+                self.save('bitly_token',new_tokens, prnt)
             elif val in new_tokens:
                 new_tokens.remove(val)
-                self.save('bitly_token',new_tokens)
+                self.save('bitly_token',new_tokens, prnt)
 
     def run(self):
         if self.progress_bar is None:
@@ -154,7 +165,7 @@ class Generate():
         
         
         #read data
-        data = prefill.read_file(cfg['excel_file'])
+        data = prefill.read_file(cfg['excel_file'], cfg['starting_cell'])
         urls = []
         ammount = len(data)
         total = len(data)*4

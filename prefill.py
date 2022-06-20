@@ -50,23 +50,26 @@ def generate_qr(destination,url, name, invert, box, border):
 
 
 #reads excel file
-def read_file(file):
+def read_file(file, start):
+    c = ord(start[0].upper()) - ord('A')
+    r = int(start[1]) - 1
     items = {}
     n = 0
     empty = False
     xlsx = pd.ExcelFile(file)
     df = pd.read_excel(xlsx, header=None)
-    
     while not empty: #converts data frame to dictionary
         data = []
-        data.append(df.iloc[n][0])
-        data.append(df.iloc[n][1])
-        data.append(df.iloc[n][2])
+        data.append(df.iloc[r+n][c])
+        data.append(df.iloc[r+n][c+1])
+        data.append(df.iloc[r+n][c+2])
         items.update({data[0]: data})
         n += 1
         try: #repeat until blank line
-            pd.isnull(df.iloc[n][0])
+            if pd.isnull(df.iloc[r+n][c]):
+                empty = True
         except:
             empty = True
+    items.pop('nan', None)
     return items
 

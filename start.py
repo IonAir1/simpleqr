@@ -17,6 +17,8 @@ enter any of the following commands:
 \'gen\' or \'generate\'             generate qr codes
 \'excel'                         display excel file path
 \'excel -c <file>'               change excel file path
+\'cell'                          display starting cell
+\'cell -c <cell>'                change starting cell
 \'destination'                   display destination file path
 \'destination -c <path>'         change destination file path
 \'form'                          display form link
@@ -40,7 +42,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size'],
+    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size', 'cell'],
     nargs='?',
     default='run'
 )
@@ -61,17 +63,17 @@ elif args.command == 'gen' or args.command == 'generate':
         print("gen/generate command does not accept arguments")
 elif args.command == 'excel':
     if args.change is not None:
-        Config().save('excel_file', args.change)
+        Config().save('excel_file', args.change, True)
     else:
         print(Config().read('excel_file'))
 elif args.command == 'destination':
     if args.change is not None:
-        Config().save('destination', args.change)
+        Config().save('destination', args.change, True)
     else:
         print(Config().read('destination'))
 elif args.command == 'form':
     if args.change is not None:
-        Config().save('forms_link', args.change)
+        Config().save('forms_link', args.change, True)
     else:
         print(Config().read('forms_link'))
 elif args.command == 'token':
@@ -87,24 +89,29 @@ elif args.command == 'token':
 elif args.command == 'invert':
     if args.change is not None:
         if args.change == 't' or args.change == 'true':
-            Config().save('invert_color', True)
+            Config().save('invert_color', True, True)
         elif args.change == 'f' or args.change == 'false':
-            Config().save('invert_color', False)
+            Config().save('invert_color', False, True)
     else:
         print(Config().read('invert_color'))
 
 elif args.command == 'box_size':
     if args.change is not None:
-        Config().save('box_size', args.change)
+        Config().save('box_size', args.change, True)
     else:
         print(Config().read('box_size'))
 
 elif args.command == 'border_size':
     if args.change is not None:
-        Config().save('boreder_size', args.change)
+        Config().save('boreder_size', args.change, True)
     else:
         print(Config().read('border_size'))
-
+elif args.command == 'cell':
+    if args.change is not None:
+        Config().save('starting_cell', args.change, True)
+    else:
+        print(Config().read('starting_cell'))
+        
 else:
     print('Unknown command, type \"-h\" for help')
 if args.change is not None and args.command == "token":

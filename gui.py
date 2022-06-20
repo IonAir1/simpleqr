@@ -19,6 +19,7 @@ data = config_instance.read('all')
 ef_var = tk.StringVar(root, data['excel_file'])
 fl_var = tk.StringVar(root, data['forms_link'])
 df_var = tk.StringVar(root, data['destination'])
+sc_var = tk.StringVar(root, data['starting_cell'])
 bs_var = tk.IntVar(root, data['box_size'])
 br_var = tk.IntVar(root, data['border_size'])
 ic_var = tk.BooleanVar(root, data['invert_color'])
@@ -41,7 +42,7 @@ def select_excel_file():
     ef_var = tk.StringVar(root, filename)
     ef_entry.delete(0,tk.END)
     ef_entry.insert(0,filename)
-    config_instance.save('excel_file', filename)
+    config_instance.save('excel_file', filename, True)
 
     
 #open window for selecting output folder
@@ -53,12 +54,13 @@ def select_destination():
     df_var = tk.StringVar(root, foldername)
     df_entry.delete(0,tk.END)
     df_entry.insert(0,foldername)
-    config_instance.save('destination', foldername)
+    config_instance.save('destination', foldername, True)
 
 
     
 #create new thread to start generating qr codes
 def generate():
+    gn.focus_set()
     generate = threading.Thread(target=config_instance.run)
     generate.start()
 
@@ -70,8 +72,8 @@ def add_token():
     tokens = [i for n, i in enumerate(token) if i not in token[:n]]
     bitly_token += [x for x in tokens if x not in bitly_token]
     bitly_token = list(filter(None, bitly_token))
-            
-    config_instance.token_change('add', ','.join(bt_add.get()))
+    
+    config_instance.token_change('add',bt_add.get(), bt_show.get())
     ba_entry.delete(0,tk.END)
     show_token()
 
@@ -82,7 +84,7 @@ def remove_token():
         tokens.append(bitly_token[(tree.index(element))])
     for element in tokens:
         bitly_token.remove(element)
-    config_instance.token_change('remove', ','.join(tokens))
+    config_instance.token_change('remove', ','.join(tokens), bt_show.get())
     show_token()
 
     
@@ -100,9 +102,13 @@ def show_token():
             hidden_token.append(token)
             tree.insert('', tk.END, values=token)
     
-
+def hide_token(x):
+    bt_show.set(False)
+    show_token()
+    
 notebook = ttk.Notebook(root)
 notebook.pack(fill='x', side='top')
+notebook.bind("<<NotebookTabChanged>>", hide_token)
 st = ttk.Frame(notebook, width=400, height=280)
 bt = ttk.Frame(notebook, width=400, height=280)
 st.pack(fill='both', expand=True)
@@ -124,7 +130,7 @@ ef.grid(column=0, row=1, padx=10, pady=10, sticky='w')
 
 ef_entry = ttk.Entry(ef, textvariable=ef_var, width=49, takefocus=False) #excel file entry input
 ef_entry.grid(column=0, row=0, padx=10, pady=10)
-ef_entry.bind("<FocusOut>", lambda event: config_instance.save('excel_file', ef_var.get()))
+ef_entry.bind("<FocusOut>", lambda event: config_instance.save('excel_file', ef_var.get(), True))
 ef_entry.bind('<Control-a>', lambda x: ef_entry.selection_range(0, 'end') or "break")
 
 ef_browse = ttk.Button(ef, text='Browse', command=select_excel_file, takefocus=False) #excel file browse button
@@ -136,7 +142,7 @@ fl = ttk.LabelFrame(st, text='G Forms Prefill link') #forms link frame
 fl.grid(column=0, row=2, padx=10, pady=10, sticky='w')
 
 fl_entry = ttk.Entry(fl, textvariable=fl_var, width=49, takefocus=False) #forms link entry input
-fl_entry.bind("<FocusOut>", lambda event: config_instance.save('forms_link', fl_var.get()))
+fl_entry.bind("<FocusOut>", lambda event: config_instance.save('forms_link', fl_var.get(), True))
 fl_entry.bind('<Control-a>', lambda x: fl_entry.selection_range(0, 'end') or "break")
 fl_entry.grid(column=0, row=0, padx=10, pady=10)
 
@@ -147,12 +153,24 @@ op = ttk.Frame(st)
 op.grid(column=0, row=3, padx=10, pady=10, sticky='w')
 
 
+sc = ttk.Frame(op)#starting cell
+sc.grid(column=0, row=0,padx=10, pady=10, sticky='w')
+sc.grid_columnconfigure(0, weight=1)
+
+sc_entry = ttk.Entry(sc, textvariable=sc_var, width=3, takefocus=False) #starting cell spinbox
+sc_entry.bind("<FocusOut>", lambda event: config_instance.save('starting_cell', sc_var.get(), True))
+sc_entry.grid(column=0, row=0)
+
+sc_text = ttk.Label(sc, text='Starting Cell') #starting cell label
+sc_text.grid(column=1, row=0)
+
+
 bs = ttk.Frame(op)#box size frame
-bs.grid(column=0, row=0,padx=30, pady=10, sticky='w')
+bs.grid(column=1, row=0,padx=10, pady=10, sticky='w')
 bs.grid_columnconfigure(0, weight=1)
 
 bs_spinbox = ttk.Spinbox(bs, textvariable=bs_var, from_=0, to=100, width=3, takefocus=False) #box size spinbox
-bs_spinbox.bind("<FocusOut>", lambda event: config_instance.save('box_size', bs_var.get()))
+bs_spinbox.bind("<FocusOut>", lambda event: config_instance.save('box_size', bs_var.get(), True))
 bs_spinbox.grid(column=0, row=0)
 
 bs_text = ttk.Label(bs, text='Box Size') #box size label
@@ -160,11 +178,11 @@ bs_text.grid(column=1, row=0)
 
 
 br = ttk.Frame(op) #border size frame
-br.grid(column=1, row=0,padx=20, pady=10, sticky='w')
+br.grid(column=2, row=0,padx=10, pady=10, sticky='w')
 br.grid_columnconfigure(0, weight=1)
 
 br_spinbox = ttk.Spinbox(br, textvariable=br_var, from_=0, to=100, width=3, takefocus=False) #border size spinbox
-br_spinbox.bind("<FocusOut>", lambda event: config_instance.save('border_size', br_var.get()))
+br_spinbox.bind("<FocusOut>", lambda event: config_instance.save('border_size', br_var.get(), True))
 br_spinbox.grid(column=0, row=0)
 
 br_text = ttk.Label(br, text='Border Size') #border size label
@@ -174,12 +192,12 @@ br_text.grid(column=1, row=0)
 #invert color checkbox
 ic = ttk.Checkbutton(op,
                 text='Invert Color',
-                command=lambda: config_instance.save('invert_color', ic_var.get()),
+                command=lambda: config_instance.save('invert_color', ic_var.get(), True),
                 variable=ic_var,
                 onvalue=True,
                 offvalue=False,
                 takefocus=False)
-ic.grid(column=2, row=0, padx=20, pady=10)
+ic.grid(column=3, row=0, padx=10, pady=10)
 
 
 
@@ -189,7 +207,7 @@ df.grid(column=0, row=4, padx=10, pady=10, sticky='w')
 
 df_entry = ttk.Entry(df, textvariable=df_var, width=49, takefocus=False) #df entry input
 df_entry.grid(column=0, row=0, padx=10, pady=10)
-df_entry.bind("<FocusOut>", lambda event: config_instance.save('destination', df_var.get()))
+df_entry.bind("<FocusOut>", lambda event: config_instance.save('destination', df_var.get(), True))
 df_entry.bind('<Control-a>', lambda x: df_entry.selection_range(0, 'end') or "break")
 
 df_browse = ttk.Button(df, text='Browse', command=select_destination, takefocus=False) #df browse button
