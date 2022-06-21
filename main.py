@@ -17,11 +17,7 @@ class Config:
     starting_cell = 'A1'
     box_size = 10
     border_size = 4
-    code = {
-        'filename': 'A',
-        'name': 'B+A',
-        'email': 'C'
-        }
+    code = {'filename': 'A'}
     
     #pass progress bar and output text object
     def assign_progress_bar(self, bar, text):
@@ -67,6 +63,10 @@ class Config:
         if self.cfg.has_option('main','border_size') and (key == 'all' or key == 'border_size'):
             val = self.cfg.get('main', 'border_size')
             self.border_size = int(val)
+        if self.cfg.has_option('main','code') and (key == 'all' or key == 'code'):
+            val = self.cfg.get('main', 'code')
+            val = dict(item.split(" = ") for item in val.split(", "))
+            self.code = val
 
         if key != 'all':
             return val
@@ -79,7 +79,8 @@ class Config:
                 'invert_color': self.invert_color,
                 'starting_cell': self.starting_cell,
                 'box_size': self.box_size,
-                'border_size': self.border_size
+                'border_size': self.border_size,
+                'code': self.code
             }
     
 
@@ -100,6 +101,24 @@ class Config:
         if prnt:
             print('save ' + str(key) + ' as ' + str(val))
 
+            
+    def code_change(self, cmd, **kwargs):
+        key = kwargs.get('key', None)
+        val = kwargs.get('val', None)
+        self.read('all')
+        
+        if cmd == 'add':
+            self.code[key] = val 
+        if cmd == 'remove':
+            del self.code[key]
+        
+        code_str = str(self.code).replace(' ','').replace('{','').replace('}','').replace(':', ' = ').replace(',', ', ').replace('\'', ''). replace('\"', '')
+        print(code_str)
+        
+        self.save('code', code_str, True)
+        
+    
+            
     #change token to val
     def token_change(self, cmd, val, prnt):
         self.read('all')
@@ -137,7 +156,7 @@ class Config:
 
     def run(self):
         if self.progress_bar is None:
-            Generate(self.read('all'), None, None, self.code)
+            Generate(self.read('all'), None, None)
         else:
             Generate(self.read('all'), self.progress_bar, self.output_text)
 
@@ -150,11 +169,12 @@ class Config:
         
         
 class Generate():
-    def __init__(self, cfg, progress_bar, output_text, code):
-        #initiate progress bar and output text
-        if not progress_bar is None:
-            output_text.config(text="Starting...")
+    def __init__(self, cfg, progress_bar, output_text):
         
+        self.progress_bar = progress_bar
+        self.output_text = output_text
+        progress_bar['value'] = 0
+
         #check for missing values
         if cfg['excel_file'] == '':
             print("No excel file found! Make sure you have entered the excel file correctly.")
@@ -176,13 +196,14 @@ class Generate():
         c = ord(cfg['starting_cell'][0].upper()) - ord('A')
         r = int(cfg['starting_cell'][1]) - 1
         df = pd.read_excel(pd.ExcelFile(cfg['excel_file']), skiprows=r, header=None)
+        code = cfg['code']
         if c > 0:
             for i in range(c):
                 del df[df.columns[0]]
         #parse filenames
         filenames = self.parse_filenames(df, code['filename'])
         #generate prefill links
-        urls = self.generate_links(cfg['forms_link'], df, code, filenames)
+        urls = self.generate_links(cfg['forms_link'], df, code, filenames)    
         #shorten links
         urls = self.shorten(cfg['bitly_token'], urls)
         #generate qr codes
@@ -241,7 +262,7 @@ class Generate():
                     ans = ''
                     for cl in cd_list:
                         ans += df.iloc[n, ord(cl) - ord('A')] + ' '
-                    link = link.replace('='+cd,ans.strip())
+                    link = link.replace('='+cd,'='+ans.strip())
             urls.append(link)
         return urls
 
@@ -280,3 +301,11 @@ class Generate():
         path = path + name + ".png"
 
         img.save(path) #save
+
+    def progress(progress, text):
+        print(text)
+        if not self.progress_bar is None:
+            self.output_text.config(text=text)
+            progress_bar['value'] += progress
+            
+            

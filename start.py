@@ -14,24 +14,28 @@ class MyArgumentParser(argparse.ArgumentParser):
 enter any of the following commands:
 
                                 leave empty to open gui
-\'gen\' or \'generate\'             generate qr codes
-\'excel'                         display excel file path
-\'excel -c <file>'               change excel file path
-\'cell'                          display starting cell
-\'cell -c <cell>'                change starting cell
-\'destination'                   display destination file path
-\'destination -c <path>'         change destination file path
-\'form'                          display form link
-\'form -c "<url>" '              change form link
-\'invert'                        show if invert colors in enabled
-\'invert -c t'                   enable invert colors
-\'invert -c f'                   disable invert colors
-\'token'                         display bitly tokens
-\'token -a <token>'              add bitly token
-\'token -a <token>,<token>,etc'  add bitly tokens
-\'token -r <token>'              remove bitly token
-\'token -r <token>,<token>,etc'  remove bitly tokens
-\'token -r all'                  remove all bitly token
+'gen' or 'generate'             generate qr codes
+'excel'                         display excel file path
+'excel -c <file>'               change excel file path
+'cell'                          display starting cell
+'cell -c <cell>'                change starting cell
+'destination'                   display destination file path
+'destination -c <path>'         change destination file path
+'form'                          display form link
+'form -c "<url>" '              change form link
+'invert'                        show if invert colors in enabled
+'invert -c t'                   enable invert colors
+'invert -c f'                   disable invert colors
+'token'                         display bitly tokens
+'token -a <token>'              add bitly token
+'token -a <token>,<token>,etc'  add bitly tokens
+'token -r <token>'              remove bitly token
+'token -r <token>,<token>,etc'  remove bitly tokens
+'token -r all'                  remove all bitly token
+'code'                          display all g forms codes
+'code -a <code>=<column>'       add g forms code
+'code -a <cde>=<clm>+<clm>+etc' add multiple g forms code
+'code -r <code>'                remove code
     """
         file.write(message+"\n")
         
@@ -42,7 +46,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size', 'cell'],
+    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size', 'cell', 'code'],
     nargs='?',
     default='run'
 )
@@ -111,6 +115,15 @@ elif args.command == 'cell':
         Config().save('starting_cell', args.change, True)
     else:
         print(Config().read('starting_cell'))
+elif args.command == 'code':
+    if args.add is not None:
+        
+        a = args.add.split('=')
+        Config().code_change('add', key=a[0], val=a[1])
+    if args.remove is not None:
+        Config().code_change('remove', key=args.remove)
+    elif args.add is None:
+        print(Config().read('code'))
         
 else:
     print('Unknown command, type \"-h\" for help')
