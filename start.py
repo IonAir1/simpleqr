@@ -14,15 +14,19 @@ class MyArgumentParser(argparse.ArgumentParser):
 enter any of the following commands:
 
                                 leave empty to open gui
-'gen' or 'generate'             generate qr codes
-'excel'                         display excel file path
-'excel -c <file>'               change excel file path
 'cell'                          display starting cell
 'cell -c <cell>'                change starting cell
+'code'                          display all g forms codes
+'code -a <code>=<column>'       add g forms code
+'code -a <cde>=<clm>+<clm>+etc' add multiple g forms code
+'code -r <code>'                remove code
 'destination'                   display destination file path
 'destination -c <path>'         change destination file path
+'excel'                         display excel file path
+'excel -c <file>'               change excel file path
 'form'                          display form link
 'form -c "<url>" '              change form link
+'gen' or 'generate'             generate qr codes
 'invert'                        show if invert colors in enabled
 'invert -c t'                   enable invert colors
 'invert -c f'                   disable invert colors
@@ -32,10 +36,8 @@ enter any of the following commands:
 'token -r <token>'              remove bitly token
 'token -r <token>,<token>,etc'  remove bitly tokens
 'token -r all'                  remove all bitly token
-'code'                          display all g forms codes
-'code -a <code>=<column>'       add g forms code
-'code -a <cde>=<clm>+<clm>+etc' add multiple g forms code
-'code -r <code>'                remove code
+'usage                          display usage of bitly tokens
+
     """
         file.write(message+"\n")
         
@@ -46,7 +48,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size', 'cell', 'code'],
+    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size', 'cell', 'code', 'usage'],
     nargs='?',
     default='run'
 )
@@ -82,12 +84,12 @@ elif args.command == 'form':
         print(Config().read('forms_link'))
 elif args.command == 'token':
     if args.add is not None:
-        Config().token_change('add', args.add)
+        Config().token_change('add', args.add, True)
     if args.remove is not None:
         if args.remove == 'all':
-            Config().token_change('clear', 0)
+            Config().token_change('clear', 0, True)
         else:
-            Config().token_change('remove', args.remove)
+            Config().token_change('remove', args.remove, True)
     elif args.add is None:
         print(str(Config().read('bitly_token')).translate({ord(c): None for c in '][,'}))
 elif args.command == 'invert':
@@ -124,6 +126,8 @@ elif args.command == 'code':
         Config().code_change('remove', key=args.remove)
     elif args.add is None:
         print(Config().read('code'))
+elif args.command == 'usage':
+    print(Config().get_usage())
         
 else:
     print('Unknown command, type \"-h\" for help')

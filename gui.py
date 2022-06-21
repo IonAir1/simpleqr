@@ -24,6 +24,7 @@ bs_var = tk.IntVar(root, data['box_size'])
 br_var = tk.IntVar(root, data['border_size'])
 ic_var = tk.BooleanVar(root, data['invert_color'])
 bitly_token = data['bitly_token']
+code = data['code']
 hidden_token = []
 bt_add = tk.StringVar()
 bt_show = tk.BooleanVar(root, False)
@@ -64,7 +65,7 @@ def select_destination():
 #create new thread to start generating qr codes
 def generate():
     gn.focus_set()
-    generate = threading.Thread(target=config_instance.run)
+    generate = threading.Thread(target=config_instance.run, kwargs={'usg':usg})
     generate.start()
 
 
@@ -110,10 +111,30 @@ def hide_token(x):
     show_token()
     
 def add_code():
-    pass
-
+    key = cd_add_cd.get()
+    val = cd_add_rp.get().upper()
+    ca_entry_cd.delete(0,tk.END)
+    ca_entry_rp.delete(0,tk.END)
+    code[key] = val
+    config_instance.code_change('add', key=key, val=val)
+    show_code()
+    
 def remove_code():
-    pass
+    selected_iid = cd_tree.selection()
+    codes = []
+    for element in selected_iid:
+        print(list(code)[cd_tree.index(element)])
+        codes.append(list(code)[cd_tree.index(element)])
+    for element in codes:
+        del code[element]
+        config_instance.code_change('remove', key=element)
+    show_code()
+
+def show_code():
+    for item in cd_tree.get_children():
+        cd_tree.delete(item)
+    for element in code:
+        cd_tree.insert('', tk.END, values=[element, code[element].upper()])
 
 notebook = ttk.Notebook(root)
 notebook.pack(fill='x', side='top')
@@ -226,32 +247,6 @@ df_browse = ttk.Button(df, text='Browse', command=select_destination, takefocus=
 df_browse.grid(column=1, row=0, padx=10, pady=10)
 
 
-#generate button
-gn = ttk.Button(root,
-                text='Generate',
-                command=generate,
-                takefocus=False)
-gn.pack(side='right', padx=30)
-
-
-
-#progress section
-ps = ttk.Frame(root) #progress section text
-ps.pack(expand=True, side='bottom', fill='x')
-ps.columnconfigure(0, weight=1)
-
-pt = ttk.Label(ps, text='') #progress text
-pt.grid(column=0, row=0, padx=30, sticky='w')
-
-pb = ttk.Progressbar( #progress bar
-    ps,
-    orient='horizontal',
-    mode='determinate',
-    length=480,
-)
-config_instance.assign_progress_bar(pb, pt)
-
-
 
 
 bt_label = ttk.Label(bt, text='Bitly Tokens')
@@ -279,13 +274,22 @@ show_token()
 ll = ttk.Frame(bt)
 ll.pack(fill='x', expand=True)
 
-show_tokens = ttk.Checkbutton(ll,
+ll_left = ttk.Frame(ll)
+ll_left.pack(side='left', padx=20)
+
+usg = ttk.Label(ll_left)
+usg.grid(sticky='w', pady=2)
+usage = config_instance.get_usage()
+usg.config(text=usage)
+
+
+show_tokens = ttk.Checkbutton(ll_left,
                 text='Show Tokens',
                 command=show_token,
                 variable=bt_show,
                 onvalue=True,
                 offvalue=False)
-show_tokens.pack(side='left', padx=20)
+show_tokens.grid(row=1,sticky='w',pady=2)
 
 bt_btn = ttk.Frame(ll)
 bt_btn.pack(side='right', padx=10)
@@ -326,7 +330,7 @@ cd_tree.heading('code', text='Code')
 cd_tree.heading('replacement', text='Replacement Column')
 #cd_tree.bind('<<cd_TreeviewSelect>>', item_selected)
 cd_tree.pack(fill='x', expand=True, padx=20, pady=10)
-show_token()
+show_code()
 
 ll = ttk.Frame(cd)
 ll.pack(fill='x', expand=True)
@@ -339,4 +343,33 @@ cd_btn_sl.grid(column=0, row=0, padx=10)
 
 cd_btn_rm = ttk.Button(cd_btn, text='Remove', command=remove_code, takefocus=False)
 cd_btn_rm.grid(column=1, row=0, padx=10)
+
+
+
+
+
+#generate button
+gn = ttk.Button(root,
+                text='Generate',
+                command=generate,
+                takefocus=False)
+gn.pack(side='right', padx=30)
+
+
+
+#progress section
+ps = ttk.Frame(root) #progress section text
+ps.pack(expand=True, side='bottom', fill='x')
+ps.columnconfigure(0, weight=1)
+
+pt = ttk.Label(ps, text='') #progress text
+pt.grid(column=0, row=0, padx=30, sticky='w')
+
+pb = ttk.Progressbar( #progress bar
+    ps,
+    orient='horizontal',
+    mode='determinate',
+    length=480,
+)
+config_instance.assign_progress_bar(pb, pt)
 root.mainloop()

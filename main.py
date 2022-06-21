@@ -4,6 +4,7 @@ import bitlyshortener
 import qrcode
 from PIL import Image
 import os
+import re
 
 class Config:
     cfg = ConfigParser()
@@ -17,7 +18,7 @@ class Config:
     starting_cell = 'A1'
     box_size = 10
     border_size = 4
-    code = {'filename': 'A'}
+    code = {}
     
     #pass progress bar and output text object
     def assign_progress_bar(self, bar, text):
@@ -65,8 +66,9 @@ class Config:
             self.border_size = int(val)
         if self.cfg.has_option('main','code') and (key == 'all' or key == 'code'):
             val = self.cfg.get('main', 'code')
-            val = dict(item.split(" = ") for item in val.split(", "))
-            self.code = val
+            if ' = ' in val:
+                val = dict(item.split(" = ") for item in val.split(", "))
+                self.code = val
 
         if key != 'all':
             return val
@@ -118,6 +120,7 @@ class Config:
         self.save('code', code_str, True)
         
     
+    
             
     #change token to val
     def token_change(self, cmd, val, prnt):
@@ -125,6 +128,7 @@ class Config:
         new_tokens = self.bitly_token
         if cmd == "clear":
             self.save('bitly_token', [''], prnt)
+            self.get_usage()
 
         if cmd == "add":
             if "," in val:
@@ -140,6 +144,7 @@ class Config:
                 if new_tokens == '':
                     return
                 self.save('bitly_token', new_tokens, prnt)
+            self.get_usage()
 
         if cmd == "remove":
             if "," in val:
@@ -153,12 +158,25 @@ class Config:
             elif val in new_tokens:
                 new_tokens.remove(val)
                 self.save('bitly_token',new_tokens, prnt)
+            self.get_usage()
 
-    def run(self):
+    def get_usage(self):
+        try:
+            shortener = bitlyshortener.Shortener(tokens=self.read('bitly_token'))
+            return str('Tokens Usage: '+str(shortener.usage()*100)[0:5]+'%')
+        except:
+            return 'Tokens Usage: Error'
+        
+                
+    def run(self, **kwargs):
         if self.progress_bar is None:
             Generate(self.read('all'), None, None)
         else:
             Generate(self.read('all'), self.progress_bar, self.output_text)
+            usg = kwargs.get('usg', None)
+            if usg != None:
+                usage = self.get_usage()
+                usg.config(text=usage)
 
         
         
@@ -173,7 +191,7 @@ class Generate():
         
         self.progress_bar = progress_bar
         self.output_text = output_text
-        progress_bar['value'] = 0
+        self.progress('start', 'Starting...')
 
         #check for missing values
         if cfg['excel_file'] == '':
@@ -193,22 +211,42 @@ class Generate():
             return
         
         #set data frame with starting cell
-        c = ord(cfg['starting_cell'][0].upper()) - ord('A')
-        r = int(cfg['starting_cell'][1]) - 1
+        c_and_r = re.split('(\d+)',cfg['starting_cell'])
+        col = c_and_r[0].upper()
+        
+        c = 0;
+        for b in range(len(col)):
+            c *= 26;
+            c += ord(col[b]) - ord('A') + 1;
+        c -= 1
+        r = int(c_and_r[1]) - 1
+        
         df = pd.read_excel(pd.ExcelFile(cfg['excel_file']), skiprows=r, header=None)
         code = cfg['code']
         if c > 0:
             for i in range(c):
                 del df[df.columns[0]]
+                
         #parse filenames
+        self.progress(0, 'Parsing files...')
         filenames = self.parse_filenames(df, code['filename'])
+        self.ammount = len(filenames)
+        self.progress(self.ammount, 'Generating prefill links...')
+        
         #generate prefill links
-        urls = self.generate_links(cfg['forms_link'], df, code, filenames)    
+        urls = self.generate_links(cfg['forms_link'], df, code, filenames)
+        
         #shorten links
+        self.progress(0, 'Shortening Links...')
         urls = self.shorten(cfg['bitly_token'], urls)
+        self.progress(self.ammount, 'Generating qr codes...')
+        
         #generate qr codes
         for n in range(len(filenames)):
+            self.progress(1, 'Generating qr code ('+str(n+1)+'/'+str(self.ammount)+')')
             self.generate_qr(cfg['destination'], urls[n], filenames[n], cfg['invert_color'], cfg['box_size'], cfg['border_size'])
+            
+        self.progress('done', 'Done!')
         
 
     #parse data frame and get filenames
@@ -255,6 +293,7 @@ class Generate():
     def generate_links(self, forms_link, df, code, fn):
         urls = []
         for n in range(len(fn)):
+            self.progress(1, 'Generating prefill links ('+str(n+1)+'/'+str(self.ammount)+')')
             link = forms_link
             for cd in code.keys():
                 if cd != 'filename':
@@ -302,10 +341,16 @@ class Generate():
 
         img.save(path) #save
 
-    def progress(progress, text):
+    def progress(self, progress, text):
         print(text)
         if not self.progress_bar is None:
             self.output_text.config(text=text)
-            progress_bar['value'] += progress
+            if str(progress) == 'start':
+                self.progress_bar.grid(column=0, row=1, padx=20, pady=5, sticky='ew')
+                self.progress_bar['value'] = 0
+            elif str(progress) == 'done':
+                self.progress_bar['value'] = 100
+            elif progress > 0:
+                self.progress_bar['value'] += (progress/(self.ammount*4))*100
             
             
