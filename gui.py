@@ -22,13 +22,13 @@ df_var = tk.StringVar(root, data['destination'])
 sc_var = tk.StringVar(root, data['starting_cell'])
 bs_var = tk.IntVar(root, data['box_size'])
 br_var = tk.IntVar(root, data['border_size'])
+ub_var = tk.BooleanVar(root, data['use_bitly'])
 ic_var = tk.BooleanVar(root, data['invert_color'])
 bitly_token = data['bitly_token']
 code = data['code']
 hidden_token = []
 bt_add = tk.StringVar()
 bt_show = tk.BooleanVar(root, False)
-
 cd_add_cd = tk.StringVar()
 cd_add_rp = tk.StringVar()
 
@@ -79,6 +79,8 @@ def add_token():
     
     config_instance.token_change('add',bt_add.get(), bt_show.get())
     ba_entry.delete(0,tk.END)
+    usage = config_instance.get_usage()
+    usg.config(text=usage)
     show_token()
 
 def remove_token():
@@ -89,6 +91,8 @@ def remove_token():
     for element in tokens:
         bitly_token.remove(element)
     config_instance.token_change('remove', ','.join(tokens), bt_show.get())
+    usage = config_instance.get_usage()
+    usg.config(text=usage)
     show_token()
 
     
@@ -136,6 +140,17 @@ def show_code():
     for element in code:
         cd_tree.insert('', tk.END, values=[element, code[element].upper()])
 
+def toggle_bitly():
+    config_instance.save('use_bitly', ub_var.get(), True)
+    show_bitly()
+        
+def show_bitly():
+    if ub_var.get():
+        notebook.tab(2, state="normal")
+    else:
+        notebook.tab(2, state="disabled")
+        
+        
 notebook = ttk.Notebook(root)
 notebook.pack(fill='x', side='top')
 notebook.bind("<<NotebookTabChanged>>", hide_token)
@@ -183,11 +198,30 @@ fl_entry.grid(column=0, row=0, padx=10, pady=10)
 
 #options section
 op = ttk.Frame(st)
-op.grid(column=0, row=3, padx=10, pady=10, sticky='w')
+op.grid(column=0, row=3, padx=10, sticky='w')
 
+ub = ttk.Checkbutton(op,
+                text='Use Bitly',
+                command=toggle_bitly,
+                variable=ub_var,
+                onvalue=True,
+                offvalue=False,
+                takefocus=False)
+ub.grid(column=0, row=0, padx=10, pady=5, sticky='w')
+show_bitly()
+
+#invert color checkbox
+ic = ttk.Checkbutton(op,
+                text='Invert Color',
+                command=lambda: config_instance.save('invert_color', ic_var.get(), True),
+                variable=ic_var,
+                onvalue=True,
+                offvalue=False,
+                takefocus=False)
+ic.grid(column=1, row=0, padx=10, pady=5, sticky='w')
 
 sc = ttk.Frame(op)#starting cell
-sc.grid(column=0, row=0,padx=10, pady=10, sticky='w')
+sc.grid(column=0, row=1,padx=10, pady=5, sticky='w')
 sc.grid_columnconfigure(0, weight=1)
 
 sc_entry = ttk.Entry(sc, textvariable=sc_var, width=3, takefocus=False) #starting cell spinbox
@@ -199,7 +233,7 @@ sc_text.grid(column=1, row=0)
 
 
 bs = ttk.Frame(op)#box size frame
-bs.grid(column=1, row=0,padx=10, pady=10, sticky='w')
+bs.grid(column=1, row=1,padx=10, pady=5, sticky='w')
 bs.grid_columnconfigure(0, weight=1)
 
 bs_spinbox = ttk.Spinbox(bs, textvariable=bs_var, from_=0, to=100, width=3, takefocus=False) #box size spinbox
@@ -211,7 +245,7 @@ bs_text.grid(column=1, row=0)
 
 
 br = ttk.Frame(op) #border size frame
-br.grid(column=2, row=0,padx=10, pady=10, sticky='w')
+br.grid(column=2, row=1,padx=10, pady=5, sticky='w')
 br.grid_columnconfigure(0, weight=1)
 
 br_spinbox = ttk.Spinbox(br, textvariable=br_var, from_=0, to=100, width=3, takefocus=False) #border size spinbox
@@ -220,17 +254,6 @@ br_spinbox.grid(column=0, row=0)
 
 br_text = ttk.Label(br, text='Border Size') #border size label
 br_text.grid(column=1, row=0)
-
-
-#invert color checkbox
-ic = ttk.Checkbutton(op,
-                text='Invert Color',
-                command=lambda: config_instance.save('invert_color', ic_var.get(), True),
-                variable=ic_var,
-                onvalue=True,
-                offvalue=False,
-                takefocus=False)
-ic.grid(column=3, row=0, padx=10, pady=10)
 
 
 

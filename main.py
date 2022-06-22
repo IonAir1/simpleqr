@@ -19,11 +19,15 @@ class Config:
     box_size = 10
     border_size = 4
     code = {}
+    use_bitly = False
     
     #pass progress bar and output text object
     def assign_progress_bar(self, bar, text):
         self.progress_bar = bar
         self.output_text = text
+    
+    def delete_config(self):
+        os.remove('cfg.ini')
     
     #read config data
     def read(self, key):
@@ -55,6 +59,13 @@ class Config:
             else:
                 val = False
             self.invert_color = val
+        if self.cfg.has_option('main', 'use_bitly') and (key == 'all' or key == 'use_bitly'):
+            strval = self.cfg.get('main','use_bitly')
+            if strval == 'True':
+                val = True
+            else:
+                val = False
+            self.use_bitly = val
         if self.cfg.has_option('main','starting_cell') and (key == 'all' or key == 'starting_cell'):
             val = self.cfg.get('main', 'starting_cell')
             self.starting_cell = val
@@ -82,7 +93,8 @@ class Config:
                 'starting_cell': self.starting_cell,
                 'box_size': self.box_size,
                 'border_size': self.border_size,
-                'code': self.code
+                'code': self.code,
+                'use_bitly': self.use_bitly
             }
     
 
@@ -161,12 +173,13 @@ class Config:
             self.get_usage()
 
     def get_usage(self):
-        try:
-            shortener = bitlyshortener.Shortener(tokens=self.read('bitly_token'))
-            return str('Tokens Usage: '+str(shortener.usage()*100)[0:5]+'%')
-        except:
-            return 'Tokens Usage: Error'
-        
+        if self.read('use_bitly') and self.read('bitly_token') != []:
+            try:
+                shortener = bitlyshortener.Shortener(tokens=self.read('bitly_token'))
+                return str('Tokens Usage: '+str(shortener.usage()*100)[0:5]+'%')
+            except:
+                return 'Tokens Usage: Error'
+
                 
     def run(self, **kwargs):
         if self.progress_bar is None:
@@ -195,30 +208,29 @@ class Generate():
 
         #check for missing values
         if cfg['excel_file'] == '':
-            print("No excel file found! Make sure you have entered the excel file correctly.")
+            print("Error: No excel file found! Make sure you have entered the excel file correctly.")
             if not progress_bar is None:
-                output_text.config(text="No excel file found!")
+                output_text.config(text="Error: No excel file found!")
             return
         if cfg['forms_link'] == '':
-            print("G forms link not found! Make sure you have entered the link correctly.")
+            print("Error: G forms link not found! Make sure you have entered the link correctly.")
             if not progress_bar is None:
-                output_text.config(text="No forms link entered")
+                output_text.config(text="Error: No forms link entered")
             return
-        if cfg['bitly_token'] == []:
-            print("No bitly tokens found! Make sure you have entered the tokens correctly.")
+        if cfg['bitly_token'] == [] and cfg['use_bitly']:
+            print("Error: No bitly tokens found! Make sure you have entered the tokens correctly.")
             if not progress_bar is None:
-                output_text.config(text="No bitly tokens added")
+                output_text.config(text="Error: No bitly tokens added")
+            return
+        if not 'filename' in cfg['code']:
+            print("Error: no code \'filename\' found! add code \'filename\' first in order to determine the filenames of the output files")
+            if not progress_bar is None:
+                output_text.config(text="Error: code \'Filename\' not found")
             return
         
         #set data frame with starting cell
         c_and_r = re.split('(\d+)',cfg['starting_cell'])
-        col = c_and_r[0].upper()
-        
-        c = 0;
-        for b in range(len(col)):
-            c *= 26;
-            c += ord(col[b]) - ord('A') + 1;
-        c -= 1
+        c = self.col2num(c_and_r[0].upper())
         r = int(c_and_r[1]) - 1
         
         df = pd.read_excel(pd.ExcelFile(cfg['excel_file']), skiprows=r, header=None)
@@ -231,15 +243,20 @@ class Generate():
         self.progress(0, 'Parsing files...')
         filenames = self.parse_filenames(df, code['filename'])
         self.ammount = len(filenames)
+        if cfg['use_bitly']:
+            self.total = self.ammount*4
+        else:
+            self.total = self.ammount*3
         self.progress(self.ammount, 'Generating prefill links...')
         
         #generate prefill links
-        urls = self.generate_links(cfg['forms_link'], df, code, filenames)
+        urls = self.generate_links(cfg['forms_link'], df, code, filenames, c)
         
         #shorten links
-        self.progress(0, 'Shortening Links...')
-        urls = self.shorten(cfg['bitly_token'], urls)
-        self.progress(self.ammount, 'Generating qr codes...')
+        if cfg['use_bitly']:
+            self.progress(0, 'Shortening Links...')
+            urls = self.shorten(cfg['bitly_token'], urls)
+            self.progress(self.ammount, 'Generating qr codes...')
         
         #generate qr codes
         for n in range(len(filenames)):
@@ -247,14 +264,21 @@ class Generate():
             self.generate_qr(cfg['destination'], urls[n], filenames[n], cfg['invert_color'], cfg['box_size'], cfg['border_size'])
             
         self.progress('done', 'Done!')
-        
+
+    def col2num(self, col):
+        c = 0;
+        for b in range(len(col)):
+            c *= 26;
+            c += ord(col[b]) - ord('A') + 1;
+        c -= 1
+        return c
 
     #parse data frame and get filenames
     def parse_filenames(self, df, code):
         filenames = []
-        fn_columns = list(code.upper())
+        fn_columns = code.upper().split('+')
         for letter in range(len(fn_columns)):
-            fn_columns[letter] = ord(fn_columns[letter].upper()) - ord('A')
+            fn_columns[letter] = self.col2num(fn_columns[letter].upper())
         fn_columns = list(filter((-22).__ne__, fn_columns))
 
         fn_list = list(df.iloc[:, fn_columns[0]])
@@ -276,7 +300,7 @@ class Generate():
         length = len(fn_list) - length
         for i in range(length):
             del fn_list[-1]
-        
+            
         #combine columns if required
         if len(fn_columns) > 1:
             fn = fn_list
@@ -290,7 +314,7 @@ class Generate():
 
     
     #generate links from data frame
-    def generate_links(self, forms_link, df, code, fn):
+    def generate_links(self, forms_link, df, code, fn, c):
         urls = []
         for n in range(len(fn)):
             self.progress(1, 'Generating prefill links ('+str(n+1)+'/'+str(self.ammount)+')')
@@ -300,7 +324,10 @@ class Generate():
                     cd_list = code[cd].upper().split('+')
                     ans = ''
                     for cl in cd_list:
-                        ans += df.iloc[n, ord(cl) - ord('A')] + ' '
+                        
+                        ncl = self.col2num(cl)
+                        ans += str(df.iloc[n, ncl]) + ' '
+                        
                     link = link.replace('='+cd,'='+ans.strip())
             urls.append(link)
         return urls
@@ -337,7 +364,7 @@ class Generate():
             os.makedirs(path)
         if not path[-1] == "/":
             path = path + "/"
-        path = path + name + ".png"
+        path = path + str(name) + ".png"
 
         img.save(path) #save
 
@@ -351,6 +378,6 @@ class Generate():
             elif str(progress) == 'done':
                 self.progress_bar['value'] = 100
             elif progress > 0:
-                self.progress_bar['value'] += (progress/(self.ammount*4))*100
+                self.progress_bar['value'] += (progress/(self.total))*100
             
             
