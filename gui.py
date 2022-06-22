@@ -173,15 +173,16 @@ def show_bitly():
         notebook.tab(2, state="normal")
     else:
         notebook.tab(2, state="disabled")
-        
+
+
 
 #notebook
 notebook = ttk.Notebook(root)
 notebook.pack(fill='x', side='top', padx=10, pady=10)
 notebook.bind("<<NotebookTabChanged>>", hide_token)
-st = ttk.Frame(notebook, width=400, height=280)
-cd = ttk.Frame(notebook, width=400, height=280)
-bt = ttk.Frame(notebook, width=400, height=280)
+st = ttk.Frame(notebook, width=400, height=300)
+cd = ttk.Frame(notebook, width=400, height=300)
+bt = ttk.Frame(notebook, width=400, height=300)
 notebook.add(st, text='Settings')
 notebook.add(cd, text='Codes')
 notebook.add(bt, text='Bitly Tokens')
@@ -298,8 +299,8 @@ df = ttk.LabelFrame(st, text='Output Folder') #df frame
 df.pack(expand=True, fill='x', padx=10, pady=10)
 df.grid_columnconfigure(0, weight=1)
 
-df_entry = ttk.Entry(df, textvariable=df_var, width=49, takefocus=False) #df entry input
-df_entry.grid(column=0, row=0, padx=10, pady=10)
+df_entry = ttk.Entry(df, textvariable=df_var, takefocus=False) #df entry input
+df_entry.grid(column=0, row=0, padx=10, pady=10, sticky='ew')
 df_entry.bind("<FocusOut>", lambda event: config_instance.save('output_path', df_var.get(), True))
 df_entry.bind('<Control-a>', lambda x: df_entry.selection_range(0, 'end') or "break")
 
@@ -320,14 +321,16 @@ cd_label.pack(side='top', anchor='nw', padx=10, pady=10)
 
 #add code
 ca = ttk.Frame(cd) #add code frame
-ca.pack(padx=10, pady=10)
+ca.pack(expand=True, fill='x', padx=15, pady=5)
+ca.grid_columnconfigure(0, weight=3)
+ca.grid_columnconfigure(1, weight=1)
 
-ca_entry_cd = ttk.Entry(ca, textvariable=cd_add_cd, width=34, takefocus=False) #add code entry 1
-ca_entry_cd.grid(column=0, row=0, padx=5)
+ca_entry_cd = ttk.Entry(ca, textvariable=cd_add_cd, takefocus=False) #add code entry 1
+ca_entry_cd.grid(column=0, row=0, padx=5, sticky='ew')
 ca_entry_cd.bind('<Control-a>', lambda x: ca_entry_cd.selection_range(0, 'end') or "break")
 
-ca_entry_rp = ttk.Entry(ca, textvariable=cd_add_rp, width=15, takefocus=False) #add code entry 2
-ca_entry_rp.grid(column=1, row=0, padx=5)
+ca_entry_rp = ttk.Entry(ca, textvariable=cd_add_rp, takefocus=False) #add code entry 2
+ca_entry_rp.grid(column=1, row=0, padx=5, sticky='ew')
 ca_entry_rp.bind('<Control-a>', lambda x: ca_entry_rp.selection_range(0, 'end') or "break")
 
 ca_button = ttk.Button(ca, text='Add', command=add_code, takefocus=False) #add code button
@@ -340,7 +343,7 @@ columns = ('code', 'replacement')
 cd_tree = ttk.Treeview(cd, columns=columns, show=["headings"])
 cd_tree.heading('code', text='Code')
 cd_tree.heading('replacement', text='Replacement Column')
-cd_tree.pack(fill='x', expand=True, padx=20, pady=10)
+cd_tree.pack(fill='x', expand=True, padx=20, pady=5)
 show_code()
 
 
@@ -351,7 +354,7 @@ ll.pack(fill='x', expand=True)
 
 #buttons
 cd_btn = ttk.Frame(ll) #buttons frame
-cd_btn.pack(side='right', padx=10)
+cd_btn.pack(side='right', padx=10, pady=20)
 
 cd_btn_sl = ttk.Button(cd_btn, text='Select all', command=lambda: cd_tree.selection_set(tuple(cd_tree.get_children())), takefocus=False) #select all button
 cd_btn_sl.grid(column=0, row=0, padx=10)
@@ -373,10 +376,11 @@ bt_label.pack(side='top', anchor='nw', padx=10, pady=10)
 
 #bitly add
 ba = ttk.Frame(bt) #bitly add frame
-ba.pack(padx=10, pady=10)
+ba.pack(expand=True, fill='x', padx=10, pady=5)
+ba.grid_columnconfigure(0, weight=1)
 
-ba_entry = ttk.Entry(ba, textvariable=bt_add, width=50, takefocus=False)
-ba_entry.grid(column=0, row=0, padx=10) #bitly add frame entry
+ba_entry = ttk.Entry(ba, textvariable=bt_add, takefocus=False)
+ba_entry.grid(column=0, row=0, padx=10, sticky='ew') #bitly add frame entry
 ba_entry.bind('<Control-a>', lambda x: ba_entry.selection_range(0, 'end') or "break")
 
 ba_button = ttk.Button(ba, text='Add', command=add_token, takefocus=False) #bitly add button
@@ -389,7 +393,7 @@ columns = ('tokens')
 bt_tree = ttk.Treeview(bt, columns=columns, show=["headings"])
 bt_tree.heading('tokens', text='Tokens')
 #bt_tree.bind('<<bt_TreeviewSelect>>', item_selected)
-bt_tree.pack(fill='x', expand=True, padx=20, pady=10)
+bt_tree.pack(fill='x', expand=True, padx=20, pady=5)
 show_token()
 
 
@@ -417,7 +421,7 @@ show_tokens.grid(row=1,sticky='w',pady=2)
 
 #last level buttons
 bt_btn = ttk.Frame(ll) #last level buttons frame
-bt_btn.pack(side='right', padx=10)
+bt_btn.pack(side='right', padx=10, pady=20)
 
 bt_btn_sl = ttk.Button(bt_btn, text='Select all', command=lambda: bt_tree.selection_set(tuple(bt_tree.get_children())), takefocus=False) #select all button
 bt_btn_sl.grid(column=0, row=0, padx=10)
@@ -431,50 +435,8 @@ bt_btn_rm.grid(column=1, row=0, padx=10)
 
 
 
-
-
-ca = ttk.Frame(cd)
-ca.pack(padx=10, pady=10)
-
-ca_entry_cd = ttk.Entry(ca, textvariable=cd_add_cd, width=34, takefocus=False)
-ca_entry_cd.grid(column=0, row=0, padx=5)
-ca_entry_cd.bind('<Control-a>', lambda x: ca_entry_cd.selection_range(0, 'end') or "break")
-
-ca_entry_rp = ttk.Entry(ca, textvariable=cd_add_rp, width=15, takefocus=False)
-ca_entry_rp.grid(column=1, row=0, padx=5)
-ca_entry_rp.bind('<Control-a>', lambda x: ca_entry_rp.selection_range(0, 'end') or "break")
-
-ca_button = ttk.Button(ca, text='Add', command=add_code, takefocus=False)
-ca_button.grid(column=2, row=0, padx=15)
-
-
-columns = ('code', 'replacement')
-cd_tree = ttk.Treeview(cd, columns=columns, show=["headings"])
-cd_tree.heading('code', text='Code')
-cd_tree.heading('replacement', text='Replacement Column')
-#cd_tree.bind('<<cd_TreeviewSelect>>', item_selected)
-cd_tree.pack(fill='x', expand=True, padx=20, pady=10)
-show_code()
-
-ll = ttk.Frame(cd)
-ll.pack(fill='x', expand=True)
-
-cd_btn = ttk.Frame(ll)
-cd_btn.pack(side='right', padx=10)
-
-cd_btn_sl = ttk.Button(cd_btn, text='Select all', command=lambda: cd_tree.selection_set(tuple(cd_tree.get_children())), takefocus=False)
-cd_btn_sl.grid(column=0, row=0, padx=10)
-
-cd_btn_rm = ttk.Button(cd_btn, text='Remove', command=remove_code, takefocus=False)
-cd_btn_rm.grid(column=1, row=0, padx=10)
-
-
-
-#----- outside notebook -----
-
-
-
-gs = ttk.Frame(root)
+#generate sectopn
+gs = ttk.Frame(root) #generate section frame
 gs.pack(expand=True, fill='x',side='bottom', anchor='s')
 
 #generate button
