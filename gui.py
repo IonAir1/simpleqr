@@ -9,8 +9,8 @@ from tkinter import filedialog as fd
 #root window
 root = tk.Tk()
 root.title('PrefillQR')
-root.geometry('720x480+50+50')
-root.resizable(False, False)
+root.geometry('720x500+50+50')
+root.minsize(720, 520)
 config_instance = Config()
 
 
@@ -177,14 +177,11 @@ def show_bitly():
 
 #notebook
 notebook = ttk.Notebook(root)
-notebook.pack(fill='x', side='top')
+notebook.pack(fill='x', side='top', padx=10, pady=10)
 notebook.bind("<<NotebookTabChanged>>", hide_token)
 st = ttk.Frame(notebook, width=400, height=280)
 cd = ttk.Frame(notebook, width=400, height=280)
 bt = ttk.Frame(notebook, width=400, height=280)
-st.pack(fill='both', expand=True)
-cd.pack(fill='both', expand=True)
-bt.pack(fill='both', expand=True)
 notebook.add(st, text='Settings')
 notebook.add(cd, text='Codes')
 notebook.add(bt, text='Bitly Tokens')
@@ -197,16 +194,17 @@ notebook.add(bt, text='Bitly Tokens')
 
 #label
 title = ttk.Label(st, text="Settings")
-title.grid(column=0, row=0, padx=10, pady=10, sticky='w')
+title.pack(expand=True, fill='x', padx=10, pady=10)
 
 
 
 #excel file section
 ef = ttk.LabelFrame(st, text='Excel File') #excel file frame
-ef.grid(column=0, row=1, padx=10, pady=10, sticky='w')
+ef.pack(expand=True, fill='x', padx=10, pady=10)
+ef.grid_columnconfigure(0, weight=1)
 
-ef_entry = ttk.Entry(ef, textvariable=ef_var, width=49, takefocus=False) #excel file entry input
-ef_entry.grid(column=0, row=0, padx=10, pady=10)
+ef_entry = ttk.Entry(ef, textvariable=ef_var, takefocus=False) #excel file entry input
+ef_entry.grid(column=0, row=0, padx=10, pady=10, sticky='ew')
 ef_entry.bind("<FocusOut>", lambda event: config_instance.save('excel_file', ef_var.get(), True))
 ef_entry.bind('<Control-a>', lambda x: ef_entry.selection_range(0, 'end') or "break")
 
@@ -217,18 +215,19 @@ ef_browse.grid(column=1, row=0, padx=10, pady=10)
 
 #forms link section
 fl = ttk.LabelFrame(st, text='G Forms Prefill link') #forms link frame
-fl.grid(column=0, row=2, padx=10, pady=10, sticky='w')
+fl.pack(expand=True, fill='x', padx=10, pady=10)
+fl.grid_columnconfigure(0, weight=1)
 
-fl_entry = ttk.Entry(fl, textvariable=fl_var, width=49, takefocus=False) #forms link entry input
+fl_entry = ttk.Entry(fl, textvariable=fl_var, takefocus=False) #forms link entry input
 fl_entry.bind("<FocusOut>", lambda event: config_instance.save('forms_link', fl_var.get(), True))
 fl_entry.bind('<Control-a>', lambda x: fl_entry.selection_range(0, 'end') or "break")
-fl_entry.grid(column=0, row=0, padx=10, pady=10)
+fl_entry.grid(column=0, row=0, padx=10, pady=10, sticky='ew')
 
 
 
 #options section
 op = ttk.Frame(st)
-op.grid(column=0, row=3, padx=10, sticky='w')
+op.pack(expand=True, fill='x', padx=10)
 
 
 #enable bitly checkbox
@@ -259,7 +258,7 @@ sc = ttk.Frame(op)#starting cell frame
 sc.grid(column=0, row=1,padx=10, pady=5, sticky='w')
 sc.grid_columnconfigure(0, weight=1)
 
-sc_entry = ttk.Entry(sc, textvariable=sc_var, width=3, takefocus=False) #starting cell spinbox
+sc_entry = ttk.Entry(sc, textvariable=sc_var, width=5, takefocus=False) #starting cell spinbox
 sc_entry.bind("<FocusOut>", lambda event: config_instance.save('starting_cell', sc_var.get(), True))
 sc_entry.grid(column=0, row=0)
 
@@ -272,7 +271,7 @@ bs = ttk.Frame(op)#box size frame
 bs.grid(column=1, row=1,padx=10, pady=5, sticky='w')
 bs.grid_columnconfigure(0, weight=1)
 
-bs_spinbox = ttk.Spinbox(bs, textvariable=bs_var, from_=0, to=100, width=3, takefocus=False) #box size spinbox
+bs_spinbox = ttk.Spinbox(bs, textvariable=bs_var, from_=0, to=100, width=5, takefocus=False) #box size spinbox
 bs_spinbox.bind("<FocusOut>", lambda event: config_instance.save('box_size', bs_var.get(), True))
 bs_spinbox.grid(column=0, row=0)
 
@@ -285,7 +284,7 @@ br = ttk.Frame(op) #border size frame
 br.grid(column=2, row=1,padx=10, pady=5, sticky='w')
 br.grid_columnconfigure(0, weight=1)
 
-br_spinbox = ttk.Spinbox(br, textvariable=br_var, from_=0, to=100, width=3, takefocus=False) #border size spinbox
+br_spinbox = ttk.Spinbox(br, textvariable=br_var, from_=0, to=100, width=5, takefocus=False) #border size spinbox
 br_spinbox.bind("<FocusOut>", lambda event: config_instance.save('border_size', br_var.get(), True))
 br_spinbox.grid(column=0, row=0)
 
@@ -296,7 +295,8 @@ br_text.grid(column=1, row=0)
 
 #output folder section
 df = ttk.LabelFrame(st, text='Output Folder') #df frame
-df.grid(column=0, row=4, padx=10, pady=10, sticky='w')
+df.pack(expand=True, fill='x', padx=10, pady=10)
+df.grid_columnconfigure(0, weight=1)
 
 df_entry = ttk.Entry(df, textvariable=df_var, width=49, takefocus=False) #df entry input
 df_entry.grid(column=0, row=0, padx=10, pady=10)
@@ -431,18 +431,62 @@ bt_btn_rm.grid(column=1, row=0, padx=10)
 
 
 
+
+
+ca = ttk.Frame(cd)
+ca.pack(padx=10, pady=10)
+
+ca_entry_cd = ttk.Entry(ca, textvariable=cd_add_cd, width=34, takefocus=False)
+ca_entry_cd.grid(column=0, row=0, padx=5)
+ca_entry_cd.bind('<Control-a>', lambda x: ca_entry_cd.selection_range(0, 'end') or "break")
+
+ca_entry_rp = ttk.Entry(ca, textvariable=cd_add_rp, width=15, takefocus=False)
+ca_entry_rp.grid(column=1, row=0, padx=5)
+ca_entry_rp.bind('<Control-a>', lambda x: ca_entry_rp.selection_range(0, 'end') or "break")
+
+ca_button = ttk.Button(ca, text='Add', command=add_code, takefocus=False)
+ca_button.grid(column=2, row=0, padx=15)
+
+
+columns = ('code', 'replacement')
+cd_tree = ttk.Treeview(cd, columns=columns, show=["headings"])
+cd_tree.heading('code', text='Code')
+cd_tree.heading('replacement', text='Replacement Column')
+#cd_tree.bind('<<cd_TreeviewSelect>>', item_selected)
+cd_tree.pack(fill='x', expand=True, padx=20, pady=10)
+show_code()
+
+ll = ttk.Frame(cd)
+ll.pack(fill='x', expand=True)
+
+cd_btn = ttk.Frame(ll)
+cd_btn.pack(side='right', padx=10)
+
+cd_btn_sl = ttk.Button(cd_btn, text='Select all', command=lambda: cd_tree.selection_set(tuple(cd_tree.get_children())), takefocus=False)
+cd_btn_sl.grid(column=0, row=0, padx=10)
+
+cd_btn_rm = ttk.Button(cd_btn, text='Remove', command=remove_code, takefocus=False)
+cd_btn_rm.grid(column=1, row=0, padx=10)
+
+
+
+#----- outside notebook -----
+
+
+
+gs = ttk.Frame(root)
+gs.pack(expand=True, fill='x',side='bottom', anchor='s')
+
 #generate button
-gn = ttk.Button(root,
+gn = ttk.Button(gs,
                 text='Generate',
                 command=generate,
                 takefocus=False)
-gn.pack(side='right', padx=30)
-
-
+gn.pack(side='right', padx=20, pady=20)
 
 #progress section
-ps = ttk.Frame(root) #progress section text
-ps.pack(expand=True, side='bottom', fill='x')
+ps = ttk.Frame(gs) #progress section text
+ps.pack(expand=True, side='right', fill='x')
 ps.columnconfigure(0, weight=1)
 
 pt = ttk.Label(ps, text='') #progress text

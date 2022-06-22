@@ -407,7 +407,7 @@ class Generate():
         if not self.progress_bar is None:
             self.output_text.config(text=text)
             if str(progress) == 'start':
-                self.progress_bar.grid(column=0, row=1, padx=20, pady=5, sticky='ew')
+                self.progress_bar.grid(column=0, row=1, padx=20, sticky='ew')
                 self.progress_bar['value'] = 0
             elif str(progress) == 'done':
                 self.progress_bar['value'] = 100
