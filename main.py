@@ -10,7 +10,7 @@ class Config:
     cfg = ConfigParser()
     excel_file = ""
     forms_link = ""
-    destination = "exports/"
+    output_path = "exports/"
     bitly_token = []
     invert_color = False
     progress_bar = None
@@ -21,13 +21,20 @@ class Config:
     code = {}
     use_bitly = False
     
+    
+    
     #pass progress bar and output text object
     def assign_progress_bar(self, bar, text):
         self.progress_bar = bar
         self.output_text = text
     
+    
+    
+    #delete cfg.ini
     def delete_config(self):
         os.remove('cfg.ini')
+    
+    
     
     #read config data
     def read(self, key):
@@ -36,6 +43,8 @@ class Config:
         if not self.cfg.has_section('main'):
             self.cfg.add_section('main')
 
+        #parse config
+        
         if self.cfg.has_option('main','excel_file') and (key == 'all' or key == 'excel_file'):
             val = self.cfg.get('main', 'excel_file')
             self.excel_file = val
@@ -44,9 +53,9 @@ class Config:
             val = self.cfg.get('main', 'forms_link')
             self.forms_link = val
 
-        if self.cfg.has_option('main','destination') and (key == 'all' or key == 'destination'):
-            val = self.cfg.get('main', 'destination')
-            self.destination = val
+        if self.cfg.has_option('main','output_path') and (key == 'all' or key == 'output_path'):
+            val = self.cfg.get('main', 'output_path')
+            self.output_path = val
 
         if self.cfg.has_option('main','bitly_token') and (key == 'all' or key == 'bitly_token'):
             val = self.cfg.get('main', 'bitly_token').split(",")
@@ -87,7 +96,7 @@ class Config:
             return {
                 'excel_file': self.excel_file,
                 'forms_link': self.forms_link,
-                'destination': self.destination,
+                'output_path': self.output_path,
                 'bitly_token': self.bitly_token,
                 'invert_color': self.invert_color,
                 'starting_cell': self.starting_cell,
@@ -97,52 +106,65 @@ class Config:
                 'use_bitly': self.use_bitly
             }
     
-
+    
+    
     #save data
     def save(self, key, val, prnt):
-        if key == "bitly_token":
-            val = ",".join(val)
-            
+        #if bitly token, convert to delimited string
+        if key == "bitly_token": 
+            value = ",".join(val)
         else:
             self.read('all')
-            val = val
+            value = val
+            
         if not self.cfg.has_section('main'):
             self.cfg.add_section('main')
         self.cfg.read('cfg.ini')
-        self.cfg.set('main', str(key), str(val))
-        with open('cfg.ini', 'w') as f:
+        self.cfg.set('main', str(key), str(value))
+        with open('cfg.ini', 'w') as f: #save
             self.cfg.write(f)
+            
+        #if prnt enabled, print debug output
         if prnt:
             print('save ' + str(key) + ' as ' + str(val))
 
             
+
+    #add/remove to code
     def code_change(self, cmd, **kwargs):
         key = kwargs.get('key', None)
         val = kwargs.get('val', None)
         self.read('all')
         
+        #add code
         if cmd == 'add':
             self.code[key] = val 
+        
+        #remove code
         if cmd == 'remove':
             del self.code[key]
         
-        code_str = str(self.code).replace(' ','').replace('{','').replace('}','').replace(':', ' = ').replace(',', ', ').replace('\'', ''). replace('\"', '')
-        print(code_str)
+        code_str = str(self.code).replace(' ','').replace('{','').replace('}','').replace(':', ' = ').replace(',', ', ').replace('\'', ''). replace('\"', '') #new code string
         
-        self.save('code', code_str, True)
+        self.save('code', code_str, True) #save
         
-    
     
             
     #change token to val
     def token_change(self, cmd, val, prnt):
         self.read('all')
         new_tokens = self.bitly_token
+        
+        
+        #remove all tokens
         if cmd == "clear":
             self.save('bitly_token', [''], prnt)
             self.get_usage()
 
+            
+        #add tokens
         if cmd == "add":
+            #add multiple tokens
             if "," in val:
                 val
                 tokens = val.replace(" ", "").split(',')
@@ -150,6 +172,8 @@ class Config:
                 new_tokens = list(filter(None, new_tokens))
                 
                 self.save('bitly_token',new_tokens, prnt)
+            
+            #add 1 token
             elif not val in new_tokens:
                 tokens = val.replace(" ", "")
                 new_tokens.append(val)
@@ -158,7 +182,10 @@ class Config:
                 self.save('bitly_token', new_tokens, prnt)
             self.get_usage()
 
+            
+        #remove tokens
         if cmd == "remove":
+            #remove multiple tokens
             if "," in val:
                 tokens = val.split(",")
                 tokens = list(set(tokens).intersection(new_tokens))
@@ -167,11 +194,16 @@ class Config:
                         new_tokens.remove(element)
                 new_tokens = list(filter(None, new_tokens))
                 self.save('bitly_token',new_tokens, prnt)
+            
+            #add 1 token            
             elif val in new_tokens:
                 new_tokens.remove(val)
                 self.save('bitly_token',new_tokens, prnt)
             self.get_usage()
 
+            
+    
+    #get token usage
     def get_usage(self):
         if self.read('use_bitly') and self.read('bitly_token') != []:
             try:
@@ -180,7 +212,9 @@ class Config:
             except:
                 return 'Tokens Usage: Error'
 
-                
+            
+    
+    #generate qr codes
     def run(self, **kwargs):
         if self.progress_bar is None:
             Generate(self.read('all'), None, None)
@@ -261,7 +295,7 @@ class Generate():
         #generate qr codes
         for n in range(len(filenames)):
             self.progress(1, 'Generating qr code ('+str(n+1)+'/'+str(self.ammount)+')')
-            self.generate_qr(cfg['destination'], urls[n], filenames[n], cfg['invert_color'], cfg['box_size'], cfg['border_size'])
+            self.generate_qr(cfg['output_path'], urls[n], filenames[n], cfg['invert_color'], cfg['box_size'], cfg['border_size'])
             
         self.progress('done', 'Done!')
 
@@ -341,7 +375,7 @@ class Generate():
 
 
     #generates an image of a qr code that links to specified url
-    def generate_qr(self, destination, url, name, invert, box, border):
+    def generate_qr(self, output_path, url, name, invert, box, border):
         qr = qrcode.QRCode( #qr code properties
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -355,7 +389,7 @@ class Generate():
             img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
         else:
             img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
-        path = destination
+        path = output_path
         if path == '':
             path = 'exports'
         if not os.path.exists(path): #generate path

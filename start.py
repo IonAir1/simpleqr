@@ -28,8 +28,8 @@ enter any of the following commands:
 'code -a <code>=<column>'       add g forms code
 'code -a <cde>=<clm>+<clm>+etc' add multiple g forms code
 'code -r <code>'                remove code
-'destination'                   display destination file path
-'destination -c <path>'         change destination file path
+'output'                   display output file path
+'output -c <path>'         change output file path
 'excel'                         display excel file path
 'excel -c <file>'               change excel file path
 'form'                          display form link
@@ -48,8 +48,9 @@ enter any of the following commands:
     """
         file.write(message+"\n")
 
+#create instance of config
 config_instance = Config()
-        
+
 #argparse
 parser = MyArgumentParser(
     prog="prefillqr",
@@ -57,7 +58,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','destination','run','invert','box_size','border_size', 'cell', 'code', 'clear', 'bitly'],
+    choices=['gen','generate','excel','form','token','output','run','invert','box_size','border_size', 'cell', 'code', 'clear', 'bitly'],
     nargs='?',
     default='run'
 )
@@ -66,13 +67,22 @@ parser.add_argument("-a","--add")
 parser.add_argument("-r","--remove")
 args = parser.parse_args()
 
+
+
+#clause guards for unexpected arguments
+
+#using -c in token and code
 if args.change is not None and (args.command in ['token', 'code']):
-        print("Error: unexpected use of argument. Use -a or -r")
+        print("Error: unexpected use of argument. use -a or -r")
         exit()
-if (args.add is not None or args.remove is not None) and args.command in ['excel','destination','form', 'cell', 'invert', 'box_size', 'border_size', 'bitly']:
-        print("Error: unexpected use of argument. Use -c instead")
+
+#using -a and -r unexpectedly
+if (args.add is not None or args.remove is not None) and args.command in ['excel','output','form', 'cell', 'invert', 'box_size', 'border_size', 'bitly']:
+        print("Error: unexpected use of argument. use -c instead")
         exit()
-if not(args.add is None and args.remove is None and args.change is None):
+
+#using arguments in commands that does not use them
+if not(args.add is None and args.remove is None and args.change is None): 
     if args.command == 'run':
         print("Error: You must type a command first before using arguments")
         exit()
@@ -82,6 +92,8 @@ if not(args.add is None and args.remove is None and args.change is None):
     elif args.command == 'clear':
         print("Error: clear command does not accept arguments")
         exit()
+
+#making sure -c in box size and border size is an integer from 0-100
 if args.command in ['box_size', 'border_size']:
     if args.change != None:
         try:
@@ -98,9 +110,11 @@ if args.command in ['box_size', 'border_size']:
 
 
 
+#commands
 
+#run command
 if args.command == 'run':
-    try:
+    try: #check if tkinter is installed
         import tkinter
         try:
             subprocess.run(['python3', 'gui.py'])
@@ -108,80 +122,119 @@ if args.command == 'run':
             subprocess.run(['python', 'gui.py'])
     except:
         print("Error: Tkinter is not installed, GUI is unavailable. You can only use the CLI. try typing \"-h\" for help")
+
+#generate command
 elif args.command == 'gen' or args.command == 'generate':
         config_instance.run()
+
+#excel command
 elif args.command == 'excel':
-    if args.change is not None:
+    if args.change is not None: #change excel file
         config_instance.save('excel_file', args.change, True)
-    else:
+        
+    else: #read excel file
         print(config_instance.read('excel_file'))
-elif args.command == 'destination':
+
+#output command
+elif args.command == 'output': #change output path
     if args.change is not None:
-        config_instance.save('destination', args.change, True)
-    else:
-        print(config_instance.read('destination'))
-elif args.command == 'form':
+        config_instance.save('output_path', args.change, True)
+        
+    else: #read output
+        print(config_instance.read('output_path'))
+
+#form command
+elif args.command == 'form': #change form link
     if args.change is not None:
         config_instance.save('forms_link', args.change, True)
-    else:
+        
+    else: #read form link
         print(config_instance.read('forms_link'))
+
+#token command
 elif args.command == 'token':
-    if args.add is not None:
+    if args.add is not None: #add token
         config_instance.token_change('add', args.add, True)
-    if args.remove is not None:
-        if args.remove == 'all':
+        
+    if args.remove is not None: 
+        if args.remove == 'all': #rclear tokens
             config_instance.token_change('clear', 0, True)
-        else:
+            
+        else: #remove token
             config_instance.token_change('remove', args.remove, True)
-    elif args.add is None:
+            
+    elif args.add is None: #read token and usage
         print(str(config_instance.read('bitly_token')).translate({ord(c): None for c in '][,'})+'\n'+ config_instance.get_usage())
+
+#invert command
 elif args.command == 'invert':
-    if args.change is not None:
+    if args.change is not None: #change invert
         if args.change == 't' or args.change == 'true':
             config_instance.save('invert_color', True, True)
+            
         elif args.change == 'f' or args.change == 'false':
             config_instance.save('invert_color', False, True)
-        else:
+            
+        else: #if invert is set to something that is not t ot f
             print("Error: invert -c only accepts t/true or f/false. Type \"-h\" for more help")
-    else:
+            
+    else: #read invert
         print(config_instance.read('invert_color'))
-elif args.command == 'bitly':
-    if args.change is not None:
+
+#bitly command
+elif args.command == 'bitly': 
+    if args.change is not None: #change bitly
         if args.change == 't' or args.change == 'true':
             config_instance.save('use_bitly', True, True)
+            
         elif args.change == 'f' or args.change == 'false':
             config_instance.save('use_bitly', False, True)
-        else:
+            
+        else: #if bitly is set to something that is not t ot f
             print("Error: bitly -c only accepts t/true or f/false. Type \"-h\" for more help")
-    else:
+            
+    else: #read bitly
         print(config_instance.read('use_bitly'))
+
+#box size command
 elif args.command == 'box_size':
-    if args.change is not None:
+    if args.change is not None: #change box size
         config_instance.save('box_size', args.change, True)
-    else:
+        
+    else: #read box size
         print(config_instance.read('box_size'))
 
+#border size command
 elif args.command == 'border_size':
-    if args.change is not None:
+    if args.change is not None: #change border size
         config_instance.save('boreder_size', args.change, True)
-    else:
-        print(config_instance.read('border_size'))
-elif args.command == 'cell':
-    if args.change is not None:
-        config_instance.save('starting_cell', args.change, True)
-    else:
-        print(config_instance.read('starting_cell'))
-elif args.command == 'code':
-    if args.add is not None:
         
+    else: #read border size
+        print(config_instance.read('border_size'))
+
+#cell command
+elif args.command == 'cell':
+    if args.change is not None: #change starting cell
+        config_instance.save('starting_cell', args.change, True)
+        
+    else: #read starting cell
+        print(config_instance.read('starting_cell'))
+
+#code comand
+elif args.command == 'code':
+    if args.add is not None: #add code
         a = args.add.split('=')
         config_instance.code_change('add', key=a[0], val=a[1])
-    if args.remove is not None:
+        
+    if args.remove is not None: #remove code
         config_instance.code_change('remove', key=args.remove)
-    elif args.add is None:
+        
+    elif args.add is None: #read code
         print(config_instance.read('code'))
+
+#clear command
 elif args.command == 'clear':
-    config_instance.delete_config_instance
+    config_instance.delete_config_instance #delete cfg.ini
         
 else:
     print('Unknown command, type \"-h\" for help')
