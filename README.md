@@ -10,7 +10,7 @@ For Windows and Linux, executables are available but for MacOS, you will have to
 
 ### Codes and Code Tab
 
-TO set up the program, open the Google Forms link, click the **3 dots button** in the top right, then click **Get pre-filled Link**  
+To set up the program, open the Google Forms link, click the **3 dots button** in the top right, then click **Get pre-filled Link**  
 For **Short answer text** and **Long answer text** type in a unique **code** (e.g *name1* or *email1*)  
 Enter a random year and time for **Year** and **Time** entries. If you have multiple, do not pick the same year and time  
 For **Multiple Choice** and **Dropdown** Select any choice. If you are going to prefill multiple of these, you need to select a different choice for each. If you are going to select **Other Option**, simply enter a unique code.  
@@ -41,7 +41,7 @@ To remove all, you can click **Select All** then **Remove**
 **G Forms Prefill Link** - Enter the prefill link copied from earlier  
 **Use Bitly** - Check to enable bitly. Afterards, the **Bitly Tokens** tab will be enabled  
 **Invert Color** - For some devices, the colors might appear inverted. Check to revert the colors back.  
-**Starting Cell** - Determine the starting point in your excel file. note that the columns entered in **codes** is relative to the starting cell (e.g If starting cell is B1; filename=A will be interpreted as filename=B, so ideally you only change the row but keep the column as **A** to not get confusion)  
+**Starting Cell** - Determine the starting point in your excel file. note that the columns entered in **codes** is relative to the starting cell (e.g If starting cell is B1; filename=A will be interpreted as filename=B, so ideally you should only change the row but keep the column as **A** in order to not get confusion)  
 **Box Size** - determine the size (in pixels) of each pixel/box in qr code (must be a value of 1-100)  
 **Border Size** - determine the border size of the qr codes (must be a value of 1-100)  
 **Output Folder** - Enter the folder for the output path of the generated qr codes
@@ -50,10 +50,11 @@ To remove all, you can click **Select All** then **Remove**
 
 *Bitly can be used to shorten the url and make the qr codes smaller*
 
+In the settings, click the **Use Bitly** checkbox to enable Bitly
 Once **Use Bitly** is enabled, the **Bitly Tokens** tab will be enabled.
 
 To get a token, you must open the bitly website and log in. Then go to the [**Bitly Settings Page**](https://app.bitly.com/settings/profile/). On the left of the webpage, click API which is under the Developer settings.  
-In the **Access Token** section, enter your password and click generate. You can now select and copy the given token. (note: Do not share your tokens, as it an give someone access to your account)
+In the **Access Token** section, enter your password and click generate. You can now select and copy the given token. (note: Do not share your tokens as it can give someone access to your account)
 
 In the program, paste the token in the entry below where it says 'Bitly Tokens' then click add.
 
@@ -62,5 +63,5 @@ If tokens are entered, the usage will appear in the bottom left corner. If it ex
 
 As you may have noticed by now, all of the tokens are hidden as asterisks, click the **Show Tokens** checkbox in the bottom left corner to show tokens.
 
-To remove tokens, simply select the tokens you want to remove then click **Remove**.
+To remove tokens, simply select the tokens you want to remove then click **Remove**.  
 To remove all, you can click **Select All** then **Remove**
