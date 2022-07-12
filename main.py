@@ -168,7 +168,9 @@ class Config:
             if "," in val:
                 val
                 tokens = val.replace(" ", "").split(',')
-                new_tokens = [i for n, i in enumerate(tokens) if i not in tokens[:n]]
+                for i in tokens:
+                    if not i in new_tokens:
+                        new_tokens.append(i)
                 new_tokens = list(filter(None, new_tokens))
                 
                 self.save('bitly_token',new_tokens, prnt)

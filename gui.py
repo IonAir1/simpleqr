@@ -72,12 +72,6 @@ def generate():
 
 # add token
 def add_token():
-    global bitly_token
-    token = bt_add.get().replace(" ", "").split(",")
-    tokens = [i for n, i in enumerate(token) if i not in token[:n]]
-    bitly_token += [x for x in tokens if x not in bitly_token]
-    bitly_token = list(filter(None, bitly_token))
-    
     config_instance.token_change('add',bt_add.get(), bt_show.get())
     ba_entry.delete(0,tk.END)
     usage = config_instance.get_usage()
@@ -88,12 +82,11 @@ def add_token():
 
 #remove token
 def remove_token():
+    bitly_token = config_instance.read('bitly_token')
     selected_iid = bt_tree.selection()
     tokens = []
     for element in selected_iid:
         tokens.append(bitly_token[(bt_tree.index(element))])
-    for element in tokens:
-        bitly_token.remove(element)
     config_instance.token_change('remove', ','.join(tokens), bt_show.get())
     usage = config_instance.get_usage()
     usg.config(text=usage)
@@ -103,6 +96,7 @@ def remove_token():
 
 #render tokens to treeview
 def show_token():
+    bitly_token = config_instance.read('bitly_token')
     for item in bt_tree.get_children():
       bt_tree.delete(item)
     if bt_show.get():
