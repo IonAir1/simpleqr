@@ -2,7 +2,7 @@
 ### Create QR codes of generated Google Forms prefill links
 
 ## To Download:
-[Click here](https://github.com/IonAir1/prefillqr/releases/tag/release1.1.0) to go to downloads page and select the appropriate version.
+[Click here](https://github.com/IonAir1/prefillqr/releases/tag/release1.1.1) to go to downloads page and select the appropriate version.
 For Windows and Linux, executables are available but for MacOS, you will have to use the source code.
 
 
