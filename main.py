@@ -68,6 +68,7 @@ class Config:
                 val = True
             else:
                 val = False
+            self.invert_color = val
         if self.cfg.has_option('main', 'filter_equal') and (key == 'all' or key == 'filter_equal'):
             strval = self.cfg.get('main','filter_equal')
             if strval == 'True':
