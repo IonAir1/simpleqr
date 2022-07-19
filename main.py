@@ -20,6 +20,7 @@ class Config:
     border_size = 4
     code = {}
     use_bitly = False
+    filter_equal = False
     
     
     
@@ -67,7 +68,13 @@ class Config:
                 val = True
             else:
                 val = False
-            self.invert_color = val
+        if self.cfg.has_option('main', 'filter_equal') and (key == 'all' or key == 'filter_equal'):
+            strval = self.cfg.get('main','filter_equal')
+            if strval == 'True':
+                val = True
+            else:
+                val = False
+            self.filter_equal = val
         if self.cfg.has_option('main', 'use_bitly') and (key == 'all' or key == 'use_bitly'):
             strval = self.cfg.get('main','use_bitly')
             if strval == 'True':
@@ -103,7 +110,8 @@ class Config:
                 'box_size': self.box_size,
                 'border_size': self.border_size,
                 'code': self.code,
-                'use_bitly': self.use_bitly
+                'use_bitly': self.use_bitly,
+                'filter_equal': self.filter_equal
             }
     
     
@@ -286,7 +294,7 @@ class Generate():
         self.progress(self.ammount, 'Generating prefill links...')
         
         #generate prefill links
-        urls = self.generate_links(cfg['forms_link'], df, code, filenames, c)
+        urls = self.generate_links(cfg['forms_link'], df, code, filenames, c, cfg['filter_equal'])
         
         #shorten links
         if cfg['use_bitly']:
@@ -350,7 +358,7 @@ class Generate():
 
     
     #generate links from data frame
-    def generate_links(self, forms_link, df, code, fn, c):
+    def generate_links(self, forms_link, df, code, fn, c, filter_equal):
         urls = []
         for n in range(len(fn)):
             self.progress(1, 'Generating prefill links ('+str(n+1)+'/'+str(self.ammount)+')')
@@ -363,8 +371,11 @@ class Generate():
                         
                         ncl = self.col2num(cl)
                         ans += str(df.iloc[n, ncl]) + ' '
-                        
-                    link = link.replace('='+cd,'='+ans.strip())
+                    
+                    if filter_equal:
+                        link = link.replace('='+cd,'='+ans.strip())
+                    else:
+                        link = link.replace(cd,ans.strip())
             urls.append(link)
         return urls
 

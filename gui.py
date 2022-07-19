@@ -24,6 +24,7 @@ bs_var = tk.IntVar(root, data['box_size'])
 br_var = tk.IntVar(root, data['border_size'])
 ub_var = tk.BooleanVar(root, data['use_bitly'])
 ic_var = tk.BooleanVar(root, data['invert_color'])
+fe_var = tk.BooleanVar(root, data['filter_equal'])
 bitly_token = data['bitly_token']
 code = data['code']
 hidden_token = []
@@ -246,6 +247,17 @@ ic = ttk.Checkbutton(op,
                 offvalue=False,
                 takefocus=False)
 ic.grid(column=1, row=0, padx=10, pady=5, sticky='w')
+
+
+#filter equal checkbox
+fe = ttk.Checkbutton(op,
+                text='Filter \"=\" sign',
+                command=lambda: config_instance.save('filter_equal', fe_var.get(), True),
+                variable=fe_var,
+                onvalue=True,
+                offvalue=False,
+                takefocus=False)
+fe.grid(column=2, row=0, padx=10, pady=5, sticky='w')
 
 
 #starting cell
