@@ -41,6 +41,7 @@ To remove all, you can click **Select All** then **Remove**
 **G Forms Prefill Link** - Enter the prefill link copied from earlier  
 **Use Bitly** - Check to enable bitly. Afterards, the **Bitly Tokens** tab will be enabled  
 **Invert Color** - For some devices, the colors might appear inverted. Check to revert the colors back.  
+**Filter "=" Sign** - If enabled, Only codes after an equal sign within the link will be detected. Enable for Prefill G Forms link but disable for other uses.  
 **Starting Cell** - Determine the starting point in your excel file. note that the columns entered in **codes** is relative to the starting cell (e.g If starting cell is B1; filename=A will be interpreted as filename=B, so ideally you should only change the row but keep the column as **A** in order to not get confusion)  
 **Box Size** - determine the size (in pixels) of each pixel/box in qr code (must be a value of 1-100)  
 **Border Size** - determine the border size of the qr codes (must be a value of 1-100)  
