@@ -251,7 +251,7 @@ ic.grid(column=1, row=0, padx=10, pady=5, sticky='w')
 
 #filter equal checkbox
 fe = ttk.Checkbutton(op,
-                text='Filter \"=\" sign',
+                text='Filter \"=\" Sign',
                 command=lambda: config_instance.save('filter_equal', fe_var.get(), True),
                 variable=fe_var,
                 onvalue=True,
