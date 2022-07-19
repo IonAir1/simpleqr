@@ -28,8 +28,11 @@ enter any of the following commands:
 'code -a <code>=<column>'       add g forms code
 'code -a <cde>=<clm>+<clm>+etc' add multiple g forms code
 'code -r <code>'                remove code
-'output'                   display output file path
-'output -c <path>'         change output file path
+'output'                        display output file path
+'output -c <path>'              change output file path
+'equal'                         display if filter_equal is enabled
+'equal -c t'                    enable filter_equal
+'equal -c f'                    disable filter_equal
 'excel'                         display excel file path
 'excel -c <file>'               change excel file path
 'form'                          display form link
@@ -58,7 +61,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','output','run','invert','box_size','border_size', 'cell', 'code', 'clear', 'bitly'],
+    choices=['gen','generate','excel','form','token','output','run','invert','box_size','border_size', 'cell', 'code', 'clear', 'bitly', 'equal'],
     nargs='?',
     default='run'
 )
@@ -180,6 +183,21 @@ elif args.command == 'invert':
             
     else: #read invert
         print(config_instance.read('invert_color'))
+
+#equal command
+elif args.command == 'equal':
+    if args.change is not None: #change equal
+        if args.change == 't' or args.change == 'true':
+            config_instance.save('filter_equal', True, True)
+            
+        elif args.change == 'f' or args.change == 'false':
+            config_instance.save('filter_equal', False, True)
+            
+        else: #if invert is set to something that is not t ot f
+            print("Error: equal -c only accepts t/true or f/false. Type \"-h\" for more help")
+            
+    else: #read invert
+        print(config_instance.read('filter_equal'))
 
 #bitly command
 elif args.command == 'bitly': 
