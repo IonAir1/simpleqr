@@ -9,8 +9,8 @@ from tkinter import filedialog as fd
 #root window
 root = tk.Tk()
 root.title('PrefillQR')
-root.geometry('720x500+50+50')
-root.minsize(720, 520)
+root.geometry('800x500+50+50')
+root.minsize(800, 520)
 config_instance = Config()
 
 
@@ -25,6 +25,7 @@ br_var = tk.IntVar(root, data['border_size'])
 ub_var = tk.BooleanVar(root, data['use_bitly'])
 ic_var = tk.BooleanVar(root, data['invert_color'])
 fe_var = tk.BooleanVar(root, data['filter_equal'])
+cs_var = tk.BooleanVar(root, data['export_csv'])
 bitly_token = data['bitly_token']
 code = data['code']
 hidden_token = []
@@ -258,6 +259,17 @@ fe = ttk.Checkbutton(op,
                 offvalue=False,
                 takefocus=False)
 fe.grid(column=2, row=0, padx=10, pady=5, sticky='w')
+
+
+#export as csv checkbox
+cs = ttk.Checkbutton(op,
+                text='Export as CSV',
+                command=lambda: config_instance.save('export_csv', cs_var.get(), True),
+                variable=cs_var,
+                onvalue=True,
+                offvalue=False,
+                takefocus=False)
+cs.grid(column=3, row=0, padx=10, pady=5, sticky='w')
 
 
 #starting cell

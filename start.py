@@ -28,6 +28,9 @@ enter any of the following commands:
 'code -a <code>=<column>'       add g forms code
 'code -a <cde>=<clm>+<clm>+etc' add multiple g forms code
 'code -r <code>'                remove code
+'csv'                           display if it shall export to csv
+'csv -c t'                      export as csv
+'csv -c f'                      export as qrcode
 'output'                        display output file path
 'output -c <path>'              change output file path
 'equal'                         display if filter_equal is enabled
@@ -61,7 +64,7 @@ parser = MyArgumentParser(
 )
 parser.add_argument(
     "command",
-    choices=['gen','generate','excel','form','token','output','run','invert','box_size','border_size', 'cell', 'code', 'clear', 'bitly', 'equal'],
+    choices=['gen','generate','excel','form','token','output','run','invert','box_size','border_size', 'cell', 'code', 'clear', 'bitly', 'equal', 'csv'],
     nargs='?',
     default='run'
 )
@@ -80,7 +83,7 @@ if args.change is not None and (args.command in ['token', 'code']):
         exit()
 
 #using -a and -r unexpectedly
-if (args.add is not None or args.remove is not None) and args.command in ['excel','output','form', 'cell', 'invert', 'box_size', 'border_size', 'bitly']:
+if (args.add is not None or args.remove is not None) and args.command in ['excel','output','form', 'cell', 'invert', 'box_size', 'border_size', 'bitly', 'csv']:
         print("Error: unexpected use of argument. use -c instead")
         exit()
 
@@ -183,6 +186,21 @@ elif args.command == 'invert':
             
     else: #read invert
         print(config_instance.read('invert_color'))
+
+#csv command
+elif args.command == 'csv':
+    if args.change is not None: #change csv
+        if args.change == 't' or args.change == 'true':
+            config_instance.save('export_csv', True, True)
+            
+        elif args.change == 'f' or args.change == 'false':
+            config_instance.save('export_csv', False, True)
+            
+        else: #if csv is set to something that is not t ot f
+            print("Error: csv -c only accepts t/true or f/false. Type \"-h\" for more help")
+            
+    else: #read csv
+        print(config_instance.read('export_csv'))
 
 #equal command
 elif args.command == 'equal':

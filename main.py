@@ -5,6 +5,7 @@ import qrcode
 from PIL import Image
 import os
 import re
+import csv
 
 class Config:
     cfg = ConfigParser()
@@ -21,6 +22,7 @@ class Config:
     code = {}
     use_bitly = False
     filter_equal = False
+    export_csv = False
     
     
     
@@ -76,6 +78,13 @@ class Config:
             else:
                 val = False
             self.filter_equal = val
+        if self.cfg.has_option('main', 'export_csv') and (key == 'all' or key == 'export_csv'):
+            strval = self.cfg.get('main','export_csv')
+            if strval == 'True':
+                val = True
+            else:
+                val = False
+            self.export_csv = val
         if self.cfg.has_option('main', 'use_bitly') and (key == 'all' or key == 'use_bitly'):
             strval = self.cfg.get('main','use_bitly')
             if strval == 'True':
@@ -112,7 +121,8 @@ class Config:
                 'border_size': self.border_size,
                 'code': self.code,
                 'use_bitly': self.use_bitly,
-                'filter_equal': self.filter_equal
+                'filter_equal': self.filter_equal,
+                'export_csv': self.export_csv
             }
     
     
@@ -303,10 +313,25 @@ class Generate():
             urls = self.shorten(cfg['bitly_token'], urls)
             self.progress(self.ammount, 'Generating qr codes...')
         
-        #generate qr codes
-        for n in range(len(filenames)):
-            self.progress(1, 'Generating qr code ('+str(n+1)+'/'+str(self.ammount)+')')
-            self.generate_qr(cfg['output_path'], urls[n], filenames[n], cfg['invert_color'], cfg['box_size'], cfg['border_size'])
+        self.output_path = self.fix_output_path(cfg['output_path'])
+
+        if cfg['export_csv']:
+            #generating csv file
+            csv = "type,title,link,iosLink,androidLink,additionalLink"
+            for n in range(len(filenames)):
+                self.progress(1, 'Generating csv file ('+str(n+1)+'/'+str(self.ammount)+')')
+                if "," in filenames[n] and not (filenames[n].startswith("\"") and filenames[n].endswith("\"")):
+                    filenames[n] = "\"" + filenames[n] + "\""
+                if "," in urls[n] and not (urls[n].startswith("\"") and urls[n].endswith("\"")):
+                    urls[n] = "\"" + urls[n] + "\""
+                csv = csv + "\nlink,{},{}".format(filenames[n],urls[n])
+            with open(self.output_path+'prefillqr.csv', 'w') as f:
+                f.write(csv)
+        else:
+            #generate qr codes
+            for n in range(len(filenames)):
+                self.progress(1, 'Generating qr code ('+str(n+1)+'/'+str(self.ammount)+')')
+                self.generate_qr(self.output_path, urls[n], filenames[n], cfg['invert_color'], cfg['box_size'], cfg['border_size'])
             
         self.progress('done', 'Done!')
 
@@ -387,6 +412,18 @@ class Generate():
         urls= shortener.shorten_urls(urls)
         return urls
 
+    #normalize/clean output path
+    def fix_output_path(self, path):
+        new_path = path
+        if new_path == '':
+            new_path = 'exports'
+        if not os.path.exists(new_path): #generate path
+            if new_path[-1] == "/":
+                new_path = new_path[:-1]
+            os.makedirs(new_path)
+        if not new_path[-1] == "/":
+            new_path = new_path + "/"
+        return new_path
 
     #generates an image of a qr code that links to specified url
     def generate_qr(self, output_path, url, name, invert, box, border):
@@ -403,18 +440,7 @@ class Generate():
             img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
         else:
             img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
-        path = output_path
-        if path == '':
-            path = 'exports'
-        if not os.path.exists(path): #generate path
-            if path[-1] == "/":
-                path = path[:-1]
-            os.makedirs(path)
-        if not path[-1] == "/":
-            path = path + "/"
-        path = path + str(name) + ".png"
-
-        img.save(path) #save
+        img.save(output_path + str(name) + ".png") #save
 
     def progress(self, progress, text):
         print(text)
