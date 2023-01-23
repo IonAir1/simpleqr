@@ -376,7 +376,7 @@ class Generate():
             fn = fn_list
             filenames = fn
             for rc in range(len(fn_columns)-1):
-                fn = ['{} '.format(elem) for elem in filenames]
+                fn = ['{}'.format(elem) for elem in filenames]
                 filenames = [i + j for i, j in zip(fn, list(df.iloc[:, fn_columns[rc+1]]))]   
         else:
             filenames = fn_list
@@ -396,7 +396,7 @@ class Generate():
                     for cl in cd_list:
                         
                         ncl = self.col2num(cl)
-                        ans += str(df.iloc[n, ncl]) + ' '
+                        ans += str(df.iloc[n, ncl])
                     
                     if filter_equal:
                         link = link.replace('='+cd,'='+ans.strip())
