@@ -1,11 +1,13 @@
 from configparser import ConfigParser
-import pandas as pd
-import bitlyshortener
-import qrcode
+from datetime import datetime
 from PIL import Image
-import os
-import re
+import bitlyshortener
 import csv
+import os
+import pandas as pd
+import qrcode
+import re
+
 
 class Config:
     cfg = ConfigParser()
@@ -325,7 +327,7 @@ class Generate():
                 if "," in urls[n] and not (urls[n].startswith("\"") and urls[n].endswith("\"")):
                     urls[n] = "\"" + urls[n] + "\""
                 csv = csv + "\nlink,{},{}".format(filenames[n],urls[n])
-            with open(self.output_path+'prefillqr.csv', 'w') as f:
+            with open(self.output_path+'prefillqr {}.csv'.format(datetime.now()), 'w') as f:
                 f.write(csv)
         else:
             #generate qr codes
