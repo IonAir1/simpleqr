@@ -3,6 +3,17 @@ from PIL import Image
 import os
 import qrcode
 
+
+class Config():
+    def __init__(self, file):
+        self.file = file
+    
+    def save(key, value):
+        pass
+
+    def load(key):
+        pass
+
         
 class SimpleQR():
     def __init__(self, text, url, **kwargs):
@@ -16,11 +27,9 @@ class SimpleQR():
         #parse filenames
         filenames = self.text.split('\n')
         
-
         #generate prefill links
         urls = self.generate_links(filenames, self.url)
         
-
         #clear output folder
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
@@ -28,7 +37,6 @@ class SimpleQR():
             if not f.endswith(".png"):
                 continue
             os.remove(os.path.join(self.output_path, f))
-
 
         #generate qr codes
         for n in range(len(filenames)):
