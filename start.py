@@ -123,9 +123,9 @@ if args.command == 'run':
     try: #check if tkinter is installed
         import tkinter
         try:
-            subprocess.run(['python3', 'gui.py'])
+            subprocess.run(['python3', 'old_gui.py'])
         except:
-            subprocess.run(['python', 'gui.py'])
+            subprocess.run(['python', 'old_gui.py'])
     except:
         print("Error: Tkinter is not installed, GUI is unavailable. You can only use the CLI. try typing \"-h\" for help")
 
