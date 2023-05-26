@@ -4,35 +4,35 @@ import os
 import qrcode
 
         
-class Generate():
+class SimpleQR():
     def __init__(self, text, url, **kwargs):
         
         self.text = text
         self.url = url
+        self.output_path = kwargs.get('path','exports/')
 
-        output_path = kwargs.get('path','exports/')
 
-
+    def generate(self, **kwargs):
         #parse filenames
         filenames = self.text.split('\n')
         
 
         #generate prefill links
-        urls = self.generate_links(filenames, url)
+        urls = self.generate_links(filenames, self.url)
         
 
         #clear output folder
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
-        for f in os.listdir(output_path):
+        if not os.path.exists(self.output_path):
+            os.makedirs(self.output_path)
+        for f in os.listdir(self.output_path):
             if not f.endswith(".png"):
                 continue
-            os.remove(os.path.join(output_path, f))
+            os.remove(os.path.join(self.output_path, f))
 
 
         #generate qr codes
         for n in range(len(filenames)):
-            self.generate_qr(output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4))
+            self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4))
 
     
     #generate links from data frame
