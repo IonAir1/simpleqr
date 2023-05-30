@@ -8,11 +8,29 @@ class Config():
     def __init__(self, file):
         self.file = file
     
-    def save(key, value):
-        pass
+    cfg = ConfigParser()
+    text = ''
+    url = ''
+    invert = False
+    
+    def save(self, key, value):
+        self.cfg.read(self.file)
+        if not self.cfg.has_section('main'):
+            self.cfg.add_section('main')
+        self.cfg.set('main', str(key), str(value))
+        with open(self.file, 'w') as f: #save
+            self.cfg.write(f)
 
-    def load(key):
-        pass
+    def load(self):
+        self.cfg.read(self.file)
+        if not self.cfg.has_section('main'):
+            self.cfg.add_section('main')
+        if self.cfg.has_option('main', 'text'):
+            self.text = self.cfg.get('main','text')
+        if self.cfg.has_option('main', 'url'):
+            self.url = self.cfg.get('main','url')
+        if self.cfg.has_option('main', 'invert'):
+            self.invert = (self.cfg.get('main','invert') == "True")
 
         
 class SimpleQR():
