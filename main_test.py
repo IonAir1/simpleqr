@@ -7,8 +7,8 @@ def test_simpleqr():
     #generate function
     text = "AA AA\nBB BB\nCC CC"
     url = "google.com/=name"
-    assert main.SimpleQR(text,url).generate() == True
-
+    assert main.SimpleQR(text,url).generate(replace=False) == True
+    assert main.SimpleQR(text,url).generate(invert=True) == True
 
 def test_config():
 
@@ -38,6 +38,5 @@ def test_config():
     values2 = [config.text, config.url, config.invert]
     assert values == values2
 
-
-test_config()
 test_simpleqr()
+test_config()
