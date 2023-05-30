@@ -46,7 +46,7 @@ class SimpleQR():
         filenames = self.text.split('\n')
         
         #generate prefill links
-        urls = self.generate_links(filenames, self.url)
+        urls = self.generate_links(filenames, self.url, **kwargs)
         
         #clear output folder
         if not os.path.exists(self.output_path):
@@ -55,7 +55,6 @@ class SimpleQR():
             if not f.endswith(".png"):
                 continue
             os.remove(os.path.join(self.output_path, f))
-
         #generate qr codes
         for n in range(len(filenames)):
             self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4))
@@ -63,12 +62,15 @@ class SimpleQR():
 
     
     #generate links from data frame
-    def generate_links(self, names, url):
-        urls = []
-        for name in names:
-            final_url = url.replace('=name','='+name.replace(' ', '%20').replace('.', ''))
-            urls.append(final_url)
-        return urls
+    def generate_links(self, names, url, **kwargs):
+        if kwargs.get('replace', True):
+            urls = []
+            for name in names:
+                final_url = url.replace('=name','='+name.replace(' ', '%20').replace('.', ''))
+                urls.append(final_url)
+            return urls
+        elif not(kwargs.get('replace', False)):
+            return names
 
 
     #generates an image of a qr code that links to specified url
