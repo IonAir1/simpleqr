@@ -41,6 +41,7 @@ class SimpleQR():
         #generate qr codes
         for n in range(len(filenames)):
             self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4))
+        return True
 
     
     #generate links from data frame
