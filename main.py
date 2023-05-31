@@ -38,10 +38,12 @@ class SimpleQR():
         
         self.text = os.linesep.join([s for s in text.splitlines() if s])
         self.url = url
+        self.progress = 0
         self.output_path = kwargs.get('path','exports/')
 
 
     def generate(self, **kwargs):
+        self.progress = 0
         #parse filenames
         filenames = self.text.split('\n')
         
@@ -55,19 +57,25 @@ class SimpleQR():
             if not f.endswith(".png"):
                 continue
             os.remove(os.path.join(self.output_path, f))
+        
         #generate qr codes
+        a = (1/len(filenames))*100
         for n in range(len(filenames)):
             self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4))
-        return True
+            self.progress += a
 
+        self.progress = 100
+        return True
     
-    #generate links from data frame
+    
+    #generate links
     def generate_links(self, names, url, **kwargs):
         if kwargs.get('replace', True):
             urls = []
             for name in names:
                 final_url = url.replace('=name','='+name.replace(' ', '%20').replace('.', ''))
                 urls.append(final_url)
+
             return urls
         elif not(kwargs.get('replace', False)):
             return names

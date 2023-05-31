@@ -66,14 +66,30 @@ def on_closing():
 def generate():
     names = names_text.get('1.0', tk.END)
     simpleqr = SimpleQR(names, link_var.get())
+    generate_thread = threading.Thread(target=generate_thread_function, kwargs={'instance':simpleqr, 'names':names})
+    generate_thread.start()
+
+    progress_thread = threading.Thread(target=progress_function, kwargs={'instance':simpleqr, 'thread':generate_thread})
+    progress_thread.start()
+
+
+def progress_function(**kwargs):
+    simpleqr = kwargs.get('instance')
+    generate_thread = kwargs.get('thread')
+
+    while generate_thread.is_alive():
+        # print(simpleqr.progress)
+        pb['value'] = simpleqr.progress
+
+def generate_thread_function(**kwargs):
+    simpleqr = kwargs.get('instance')
+    names = kwargs.get('names')
     if names.startswith("https://"):
         simpleqr.generate(invert=invert_var.get(), replace=False)
     else:
         simpleqr.generate(invert=invert_var.get())
     
-    path = 'file://' + os.getcwd().replace('\\', '/') + '/exports'
-    print(path)
-    webbrowser.open(path)
+    webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
 
 
 def select_all(event):
@@ -123,18 +139,18 @@ gs.pack(fill='x', anchor='s')
 
 gn = ttk.Button(gs,
                 text='Generate',
-                command=lambda: threading.Thread(target=generate).start(),
+                command=lambda: generate(),
                 takefocus=False)
 gn.pack(side='right', padx=(5, 10), pady=20)
 
 
-# pb = ttk.Progressbar( #progress bar
-#     gs,
-#     orient='horizontal',
-#     mode='determinate',
-#     length=480,
-# )
-# pb.pack(side='right', expand=True, fill='x', padx=(10,5))
+pb = ttk.Progressbar( #progress bar
+    gs,
+    orient='horizontal',
+    mode='determinate',
+    length=480,
+)
+pb.pack(side='right', expand=True, fill='x', padx=(10,5))
 
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
