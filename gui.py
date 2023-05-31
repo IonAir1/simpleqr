@@ -83,13 +83,13 @@ gn = ttk.Button(gs,
 gn.pack(side='right', padx=(5, 10), pady=20)
 
 
-pb = ttk.Progressbar( #progress bar
-    gs,
-    orient='horizontal',
-    mode='determinate',
-    length=480,
-)
-pb.pack(side='right', expand=True, fill='x', padx=(10,5))
+# pb = ttk.Progressbar( #progress bar
+#     gs,
+#     orient='horizontal',
+#     mode='determinate',
+#     length=480,
+# )
+# pb.pack(side='right', expand=True, fill='x', padx=(10,5))
 
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
