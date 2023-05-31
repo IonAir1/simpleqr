@@ -24,6 +24,21 @@ def on_closing():
     root.destroy()
 
 
+def generate():
+    names = names_text.get('1.0', tk.END)
+    simpleqr = SimpleQR(names, link_var.get())
+    if names.startswith("https://"):
+        simpleqr.generate(invert=invert_var.get(), replace=False)
+    else:
+        simpleqr.generate(invert=invert_var.get())
+    
+    path = 'file://' + os.getcwd().replace('\\', '/') + '/exports'
+    print(path)
+    webbrowser.open(path)
+
+    
+
+
 #title
 title = ttk.Label(root, text="SimpleQR", font=("Arial", 25))
 title.pack(fill='x', padx=5, pady=5)
@@ -63,23 +78,18 @@ gs.pack(fill='x', anchor='s')
 
 gn = ttk.Button(gs,
                 text='Generate',
-                command=print("GENERATE"),
+                command=lambda: threading.Thread(target=generate).start(),
                 takefocus=False)
-gn.pack(side='right', padx=20, pady=20)
+gn.pack(side='right', padx=(5, 10), pady=20)
 
-ps = ttk.Frame(gs) #progress section text
-ps.pack(expand=True, side='right', fill='x')
-ps.columnconfigure(0, weight=1)
-
-pt = ttk.Label(ps, text='') #progress text
-pt.grid(column=0, row=0, padx=30, sticky='w')
 
 pb = ttk.Progressbar( #progress bar
-    ps,
+    gs,
     orient='horizontal',
     mode='determinate',
     length=480,
 )
+pb.pack(side='right', expand=True, fill='x', padx=(10,5))
 
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
