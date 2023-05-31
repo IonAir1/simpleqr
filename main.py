@@ -36,7 +36,7 @@ class Config():
 class SimpleQR():
     def __init__(self, text, url, **kwargs):
         
-        self.text = text
+        self.text = os.linesep.join([s for s in text.splitlines() if s])
         self.url = url
         self.output_path = kwargs.get('path','exports/')
 
@@ -88,5 +88,5 @@ class SimpleQR():
             img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
         else:
             img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
-        img.save(output_path + str(name) + ".png") #save
+        img.save(output_path + str(name).replace('/','').replace(':','') + ".png") #save
             
