@@ -45,7 +45,7 @@ class SimpleQR():
     def generate(self, **kwargs):
         self.progress = 0
         #parse filenames
-        filenames = self.text.split('\n')
+        filenames = self.text.replace('\\r','').split('\n')
         
         #generate prefill links
         urls = self.generate_links(filenames, self.url, **kwargs)
@@ -73,7 +73,7 @@ class SimpleQR():
         if kwargs.get('replace', True):
             urls = []
             for name in names:
-                final_url = url.replace('=name','='+name.replace(' ', '%20').replace('.', ''))
+                final_url = url.replace('=name','='+name.replace(' ', '%20'))
                 urls.append(final_url)
 
             return urls
@@ -96,5 +96,5 @@ class SimpleQR():
             img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
         else:
             img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
-        img.save(output_path + str(name).replace('/','').replace(':','') + ".png") #save
+        img.save(output_path.replace('\\','/') + str(name).replace('/','').replace(':','').replace('.', '') + ".png") #save
             
