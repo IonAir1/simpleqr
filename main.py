@@ -45,7 +45,7 @@ class SimpleQR():
     def generate(self, **kwargs):
         self.progress = 0
         #parse filenames
-        filenames = self.text.replace('\\r','').split('\n')
+        filenames = self.text.replace('\\r','').replace('\r','').split('\n')
         
         #generate prefill links
         urls = self.generate_links(filenames, self.url, **kwargs)
