@@ -5,9 +5,6 @@ from PIL import Image, ImageFont, ImageDraw
 import openpyxl
 from openpyxl_image_loader import SheetImageLoader
 
-name = """test1
-test2"""
-
 
 def compile_names(excel):
     df = pd.read_excel(excel, header=None)
@@ -39,20 +36,46 @@ def load_image(excel, index):
 
 def generate_qr(names):
     qr = main.SimpleQR(names, settings.LINK)
-    qrcodes = qr.generate(invert=settings.INVERT, split=settings.SPLIT, save=False)
+    qrcodes = qr.generate(invert=settings.INVERT, split=settings.SPLIT, save=False, clear=settings.DELETE_PREV, border=settings.BORDER_SIZE)
     return qrcodes
 
 
-def generate_id(name, picture, qrcode):
-    pass
+def generate_name(size, message, font, fontColor):
+    W, H = size
+    image = Image.new('RGBA', size, (255, 255, 255,0))
+    draw = ImageDraw.Draw(image)
+    _, _, w, h = draw.textbbox((0, 0), message, font=font)
+    draw.text(((W-w)/2, (H-h)/2), message, font=font, fill=fontColor)
+    return image
+
+
+def generate_id(template, name, picture, qrcode):
+    id = Image.open(template)
+    name = name.split(', ')
+    formatted_name = name[1] + ' ' + name[0]
+    id.paste(generate_name(settings.NAME_SIZE, formatted_name, ImageFont.truetype(settings.FONT, settings.FONT_SIZE), settings.FONT_COLOR), settings.NAME_POS)
+    
+    pic_pos = (settings.PICTURE_POS[0], settings.PICTURE_POS[1])
+    pic_size = (settings.PICTURE_POS[2], settings.PICTURE_POS[3])
+    if picture != None:
+        id.paste(picture.resize(pic_size), pic_pos)
+    
+    qr_pos = (settings.QR_POS[0], settings.QR_POS[1])
+    qr_size = (settings.QR_POS[2], settings.QR_POS[3])
+    if qrcode != None:
+        id.paste(qrcode.resize(qr_size), qr_pos)
+
+    id.save('exports/test.png')
 
 
 def generate_ids():
     names = compile_names(settings.EXCEL)
     str_names = "\n".join(names)
     qrcodes = generate_qr(str_names)
-    image = load_image(settings.EXCEL, 1)
-    print(str_names)
+
+    i = 1
+    image = load_image(settings.EXCEL, i)
+    generate_id(settings.TEMPLATE, names[i].upper(), image, qrcodes[i])
 
 
     # image.save("exports/pic1.png")

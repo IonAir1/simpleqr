@@ -2,6 +2,7 @@
 SPLIT = True
 INVERT = True
 DELETE_PREV = False
+BORDER_SIZE = 0
 LINK = "www.google.com/=lastname=firstname"
 
 #excel settings
@@ -13,8 +14,9 @@ PICTURE = 'L'
 #id settings
 TEMPLATE = "template1.png"
 FONT = "Roboto-Regular.ttf"
-FONT_SIZE = 25
-FONT_COLOR = (0, 0, 0) # #7B1113 123,17,29
-PICTURE_POS = (10, 10, 50, 50)
-QR_POS = (100, 100, 50, 50)
-NAME_POS = (50, 50)
+FONT_SIZE = 50
+FONT_COLOR = (123, 17, 29)
+PICTURE_POS = (200, 400, 250, 250)
+QR_POS = (200, 1500, 250, 250)
+NAME_POS = (0, 1155)
+NAME_SIZE = (1024, 50)
