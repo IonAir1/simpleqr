@@ -3,13 +3,14 @@ import idsettings as settings
 import pandas as pd
 from PIL import Image, ImageFont, ImageDraw
 import openpyxl
+from openpyxl.utils import column_index_from_string
 from openpyxl_image_loader import SheetImageLoader
 
 
 def compile_names(excel):
     df = pd.read_excel(excel, header=None)
 
-    column = df[settings.NAME]
+    column = df[column_index_from_string(settings.NAME)-1]
     if settings.MIDDLE_NAME != '':
         column2 = df[settings.MIDDLE_NAME]
     names = []
