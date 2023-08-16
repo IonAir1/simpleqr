@@ -16,6 +16,7 @@ config = Config('cfg.ini')
 config.load()
 link_var = tk.StringVar(root, config.url)
 invert_var = tk.StringVar(root, config.invert)
+split_var = tk.StringVar(root, config.split)
 
 
 #Extended Text Widget that includes a context menu and select all support
@@ -95,9 +96,9 @@ def generate_thread_function(**kwargs):
     simpleqr = kwargs.get('instance')
     names = kwargs.get('names')
     if names.startswith("https://"):
-        simpleqr.generate(invert=invert_var.get(), replace=False)
+        simpleqr.generate(invert=invert_var.get(), split=split_var.get(), replace=False)
     else:
-        simpleqr.generate(invert=invert_var.get())
+        simpleqr.generate(invert=invert_var.get(), split=split_var.get())
     
     webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
 
@@ -131,16 +132,30 @@ fl_entry.bind('<Control-a>', lambda x: fl_entry.selection_range(0, 'end') or "br
 fl_entry.bind('<Control-A>', lambda x: fl_entry.selection_range(0, 'end') or "break")
 fl_entry.pack(padx=10, pady=10, expand=True, fill='x')
 
+buttons = ttk.Frame()
+buttons.pack(anchor='nw')
 
 #invert color checkbox
-ic = ttk.Checkbutton(root,
+ic = ttk.Checkbutton(buttons,
                 text='Invert Color',
                 command=lambda: config.save('invert', bool(int(invert_var.get()))),
                 variable=invert_var,
                 onvalue=1,
                 offvalue=0,
                 takefocus=False)
-ic.pack(padx=10, pady=5, anchor='nw')
+ic.grid(row=0, column=0, padx=10, pady=5)
+
+
+
+#split name checkbox
+sn = ttk.Checkbutton(buttons,
+                text='Split Name',
+                command=lambda: config.save('split', bool(int(split_var.get()))),
+                variable=split_var,
+                onvalue=1,
+                offvalue=0,
+                takefocus=False)
+sn.grid(row=0, column=1, padx=10, pady=5)
 
 
 #generate sectopn

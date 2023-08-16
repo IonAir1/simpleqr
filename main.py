@@ -12,6 +12,7 @@ class Config():
     text = ''
     url = ''
     invert = False
+    split = False
     
     def save(self, key, value):
         self.cfg.read(self.file)
@@ -20,6 +21,7 @@ class Config():
         self.cfg.set('main', str(key), str(value))
         with open(self.file, 'w') as f: #save
             self.cfg.write(f)
+        print(key,"  ", value)
 
     def load(self):
         self.cfg.read(self.file)
@@ -31,6 +33,8 @@ class Config():
             self.url = self.cfg.get('main','url')
         if self.cfg.has_option('main', 'invert'):
             self.invert = (self.cfg.get('main','invert') == "True")
+        if self.cfg.has_option('main', 'split'):
+            self.split = (self.cfg.get('main','split') == "True")
 
         
 class SimpleQR():
@@ -73,8 +77,33 @@ class SimpleQR():
         if kwargs.get('replace', True):
             urls = []
             for name in names:
-                final_url = url.replace('=name','='+name.replace(' ', '%20'))
-                urls.append(final_url)
+                if kwargs.get('split', False) == '1': #check if split name is on
+                    last_first = name.split(',')
+                    new_url = url.replace('=lastname','='+last_first[0].strip().replace(' ', '%20'))
+
+                    if len(last_first) > 1: #check if first name exists
+                        if last_first[1].strip()[-1] == '.':
+                            first_mid = last_first[1].strip().split(' ')
+                            final_url = new_url
+                            for name in first_mid: #does the first name string contain a middle name
+                                if name[-1] == '.':
+                                    final_url = final_url.replace('addmiddlename','%20'+name.strip().replace(' ', '%20')+'addmiddlename')
+                                    final_url = final_url.replace('=middlename','='+name.strip().replace(' ', '%20')+'addmiddlename')
+                                else:
+                                    final_url = final_url.replace('addfirstname','%20'+name.strip().replace(' ', '%20')+'addfirstname')
+                                    final_url = final_url.replace('=firstname','='+name.strip().replace(' ', '%20')+'addfirstname')
+                            final_url = final_url.replace('addfirstname','').replace('addmiddlename','').replace('firstname','').replace('middlename','')
+                            urls.append(final_url)
+
+                        else:
+                            new_url = new_url.replace('=firstname','='+last_first[1].strip().replace(' ', '%20'))
+                            urls.append(new_url.replace('firstname','').replace('middlename',''))
+                    else:
+                        urls.append(new_url.replace('firstname','').replace('middlename',''))
+
+                else:
+                    final_url = url.replace('=name','='+name.replace(' ', '%20'))
+                    urls.append(final_url)
 
             return urls
         elif not(kwargs.get('replace', False)):
