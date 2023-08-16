@@ -57,10 +57,11 @@ class SimpleQR():
         #clear output folder
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
-        for f in os.listdir(self.output_path):
-            if not f.endswith(".png"):
-                continue
-            os.remove(os.path.join(self.output_path, f))
+        if kwargs.get('clear', True):
+            for f in os.listdir(self.output_path):
+                if not f.endswith(".png"):
+                    continue
+                os.remove(os.path.join(self.output_path, f))
         
         #generate qr codes
         a = (1/len(filenames))*100
