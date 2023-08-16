@@ -7,7 +7,7 @@ LINK = "www.google.com/=lastname=firstname"
 #excel settings
 EXCEL = "KAMIARES2023.xlsx"
 NAME = 1
-MIDDLE_NAME = 2
+MIDDLE_NAME = ''
 PICTURE = 'L'
 
 #id settings
