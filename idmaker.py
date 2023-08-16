@@ -1,7 +1,7 @@
 import main
 import idsettings as settings
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 import openpyxl
 from openpyxl_image_loader import SheetImageLoader
 
@@ -47,7 +47,7 @@ def generate_ids():
     qrcodes = generate_qr(str_names)
     image = load_image(settings.EXCEL, 1)
 
-    
+
     # image.save("exports/pic1.png")
     # print(len(qrcodes))
     # print(qrcodes)
