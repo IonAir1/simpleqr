@@ -2,6 +2,8 @@ import main
 import idsettings as settings
 import pandas as pd
 from PIL import Image
+import openpyxl
+from openpyxl_image_loader import SheetImageLoader
 
 name = """test1
 test2"""
@@ -23,6 +25,15 @@ def compile_names(excel):
     return names
 
 
+def load_image(excel, index):
+    
+    wb = openpyxl.load_workbook(excel)
+    sheet = wb.worksheets[0]
+    image_loader = SheetImageLoader(sheet)
+    image = None
+    if image_loader.image_in(settings.PICTURE+str(index+1)):
+        image = image_loader.get(settings.PICTURE+str(index+1))
+    return image
 
 def generate_qr(names):
     qr = main.SimpleQR(names, settings.LINK)
@@ -33,10 +44,13 @@ def generate_qr(names):
 def generate_ids():
     names = compile_names(settings.EXCEL)
     str_names = "\n".join(names)
-    print(str_names)
     qrcodes = generate_qr(str_names)
-    print(len(qrcodes))
-    print(qrcodes)
+    image = load_image(settings.EXCEL, 1)
+
+    
+    # image.save("exports/pic1.png")
+    # print(len(qrcodes))
+    # print(qrcodes)
     # for code in qrcodes:
     #     code.save("exports/" + names[qrcodes.index(code)] + ".png")
     #     print(code)
