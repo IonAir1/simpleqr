@@ -13,13 +13,15 @@ def compile_names(excel):
     df = pd.read_excel(excel, header=None)
 
     column = df[settings.NAME]
-    column2 = df[settings.MIDDLE_NAME]
+    if settings.MIDDLE_NAME != '':
+        column2 = df[settings.MIDDLE_NAME]
     names = []
     i = 0
     for name in column:
         temp_name = ' '.join(elem.capitalize() for elem in name.split())
-        if column2[i] != '':
-            temp_name = temp_name + " " + column2[i].upper() + "."
+        if settings.MIDDLE_NAME != '':
+            if column2[i] != '':
+                temp_name = temp_name + " " + column2[i].upper() + "."
         names.append(temp_name)
         i += 1
     return names
@@ -41,11 +43,16 @@ def generate_qr(names):
     return qrcodes
 
 
+def generate_id(name, picture, qrcode):
+    pass
+
+
 def generate_ids():
     names = compile_names(settings.EXCEL)
     str_names = "\n".join(names)
     qrcodes = generate_qr(str_names)
     image = load_image(settings.EXCEL, 1)
+    print(str_names)
 
 
     # image.save("exports/pic1.png")
