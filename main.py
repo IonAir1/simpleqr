@@ -66,7 +66,7 @@ class SimpleQR():
         a = (1/len(filenames))*100
         qrcodes = []
         for n in range(len(filenames)):
-            qrcodes.append(self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4)))
+            qrcodes.append(self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4), kwargs.get('save', True)))
             self.progress += a
 
         self.progress = 100
@@ -112,7 +112,7 @@ class SimpleQR():
 
 
     #generates an image of a qr code that links to specified url
-    def generate_qr(self, output_path, url, name, invert, box, border):
+    def generate_qr(self, output_path, url, name, invert, box, border, save):
         qr = qrcode.QRCode( #qr code properties
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -126,6 +126,7 @@ class SimpleQR():
             img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
         else:
             img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
-        img.save(output_path.replace('\\','/') + str(name).replace('/','').replace(':','').replace('.', '') + ".png") #save
+        if save:
+            img.save(output_path.replace('\\','/') + str(name).replace('/','').replace(':','').replace('.', '') + ".png") #save
         return img
             
