@@ -9,7 +9,7 @@ import os
 #root window
 root = tk.Tk()
 root.title('SimpleQR')
-root.geometry('500x800+50+50')
+root.geometry('500x600+50+50')
 root.minsize(500, 500)
 
 config = Config('cfg.ini')
