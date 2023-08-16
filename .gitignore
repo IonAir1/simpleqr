@@ -9,3 +9,5 @@ dist
 prefillqr.egg-info
 *.spec
 /simpleqr
+template.png
+template1.png
