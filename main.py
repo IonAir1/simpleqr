@@ -64,12 +64,13 @@ class SimpleQR():
         
         #generate qr codes
         a = (1/len(filenames))*100
+        qrcodes = []
         for n in range(len(filenames)):
-            self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4))
+            qrcodes.append(self.generate_qr(self.output_path, urls[n], filenames[n], kwargs.get('invert', False), kwargs.get('box', 10), kwargs.get('border', 4)))
             self.progress += a
 
         self.progress = 100
-        return True
+        return qrcodes
     
     
     #generate links
@@ -126,4 +127,5 @@ class SimpleQR():
         else:
             img = qr.make_image(fill_color="white", back_color="black").convert('RGB')
         img.save(output_path.replace('\\','/') + str(name).replace('/','').replace(':','').replace('.', '') + ".png") #save
+        return img
             
