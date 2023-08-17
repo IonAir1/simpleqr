@@ -1,8 +1,10 @@
 import main
 import idsettings as settings
 import pandas as pd
-from PIL import Image, ImageFont, ImageDraw, ImageOps
 import openpyxl
+import os
+import webbrowser
+from PIL import Image, ImageFont, ImageDraw, ImageOps
 from openpyxl.utils import column_index_from_string
 from openpyxl_image_loader import SheetImageLoader
 
@@ -31,6 +33,7 @@ def load_images(excel, column, total):
     image_loader = SheetImageLoader(sheet)
     images = []
     for i in range(total):
+        print("Extracting images from excel file (" + str(i) + "/" + str(total) + ")")
         if image_loader.image_in(str(column)+str(i)):
             images.append(image_loader.get(column+str(i)))
         else:
@@ -82,18 +85,22 @@ def generate_id(template, name, picture, qrcode):
 
 
 def generate_ids():
+    print("Extracting Names")
     names = compile_names(settings.EXCEL)
     if settings.RANGE > 0:
         names = names[:settings.RANGE]
     str_names = "\n".join(names)
 
+    print("Generating QR Codes")
     qrcodes = generate_qr(str_names)
     
+    print("Extracting images from excel file")
     pictures = load_images(settings.EXCEL, settings.PICTURE, len(names))
 
+    print("Generating IDs")
     skipped = []
     for i in range(len(names)):
-        image = load_image(settings.EXCEL, i)
+        print("Generating IDs (" + str(i) + "/" + str(len(names)) + ")")
         id = generate_id(settings.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i])
         if id == None:
             skipped.append(names[i])
