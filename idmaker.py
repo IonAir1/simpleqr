@@ -71,7 +71,6 @@ def generate_id(template, name, picture, qrcode):
     elif settings.MISSING_PICTURE.lower() == 'skip':
         return
 
-    print("AAAAA")
     if qrcode != None:
         qr_pos = (settings.QR_POS[0], settings.QR_POS[1])
         qr_size = (settings.QR_POS[2], settings.QR_POS[3])
