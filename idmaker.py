@@ -68,13 +68,16 @@ def generate_id(template, name, picture, qrcode):
             new_pos = (int((pic_size[0]/2)-(resized_pic.size[0]/2)+pic_pos[0]),
                        int((pic_size[1]/2)-(resized_pic.size[1]/2)+pic_pos[1]))
             id.paste(resized_pic, new_pos)
+    elif settings.MISSING_PICTURE.lower() == 'skip':
+        return
 
+    print("AAAAA")
     if qrcode != None:
         qr_pos = (settings.QR_POS[0], settings.QR_POS[1])
         qr_size = (settings.QR_POS[2], settings.QR_POS[3])
         id.paste(qrcode.resize(qr_size), qr_pos)
 
-    id.save('exports/'+name+'.png')
+    return id
 
 
 def generate_ids():
@@ -82,16 +85,18 @@ def generate_ids():
     str_names = "\n".join(names)
     qrcodes = generate_qr(str_names)
 
-    i = 1
-    image = load_image(settings.EXCEL, i)
-    generate_id(settings.TEMPLATE, names[i].upper(), image, qrcodes[i])
+    skipped = []
+    for i in range(3):
+        image = load_image(settings.EXCEL, i)
+        id = generate_id(settings.TEMPLATE, names[i].upper(), image, qrcodes[i])
+        if id == None:
+            skipped.append(names[i])
+        else:
+            id.save('exports/'+names[i]+'.png')
+    
+    print("Missing Pictures:\n" + '\n'.join(skipped) + '\n')
+    print("Done! (" + str(len(names)-len(skipped)) + "/" + str(len(names)) + ") have been generated successfully.")
 
-
-    # image.save("exports/pic1.png")
-    # print(len(qrcodes))
-    # print(qrcodes)
-    # for code in qrcodes:
-    #     code.save("exports/" + names[qrcodes.index(code)] + ".png")
-    #     print(code)
+    
 
 generate_ids()
