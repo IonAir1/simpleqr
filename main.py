@@ -79,7 +79,7 @@ class SimpleQR():
         if kwargs.get('replace', True):
             urls = []
             for name in names:
-                if kwargs.get('split', False) == '1': #check if split name is on
+                if kwargs.get('split', False) in ['1',True]: #check if split name is on
                     last_first = name.split(',')
                     new_url = url.replace('=lastname','='+last_first[0].strip().replace(' ', '%20'))
 
