@@ -12,10 +12,11 @@ MIDDLE_NAME = ''
 PICTURE = 'L'
 
 #id settings
-TEMPLATE = "template1.png"
+TEMPLATE = "template.png"
 FONT = "Roboto-Regular.ttf"
 FONT_SIZE = 50
 FONT_COLOR = (123, 17, 29)
 PICTURE_POS = (148, 445, 727, 692)
+ASPECT_RATIO = "keep"
 QR_POS = (353, 1469, 301, 301)
 NAME_POS = (0, 1155, 1024, 50)
