@@ -87,6 +87,8 @@ def generate_id(template, name, picture, qrcode):
 def generate_ids():
     print("Extracting Names")
     names = compile_names(settings.EXCEL)
+    if settings.RANGE > 0:
+        names = names[:settings.RANGE]
     str_names = "\n".join(names)
 
     print("Generating QR Codes")
