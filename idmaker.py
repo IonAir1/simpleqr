@@ -25,15 +25,18 @@ def compile_names(excel):
     return names
 
 
-def load_image(excel, index):
-    
+def load_images(excel, column, total):
     wb = openpyxl.load_workbook(excel)
     sheet = wb.worksheets[0]
     image_loader = SheetImageLoader(sheet)
-    image = None
-    if image_loader.image_in(settings.PICTURE+str(index+1)):
+    images = []
+    for i in range(total):
         image = image_loader.get(settings.PICTURE+str(index+1))
-    return image
+        if image_loader.image_in(str(column)+str(i)):
+            images.append(image_loader.get(column+str(i)))
+        else:
+            images.append(None)
+    return images
 
 def generate_qr(names):
     qr = main.SimpleQR(names, settings.LINK)
@@ -83,11 +86,12 @@ def generate_ids():
     names = compile_names(settings.EXCEL)
     str_names = "\n".join(names)
     qrcodes = generate_qr(str_names)
+    pictures = load_images(settings.EXCEL, settings.PICTURE, len(names))
 
     skipped = []
-    for i in range(3):
+    for i in range(len(names)):
         image = load_image(settings.EXCEL, i)
-        id = generate_id(settings.TEMPLATE, names[i].upper(), image, qrcodes[i])
+        id = generate_id(settings.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i])
         if id == None:
             skipped.append(names[i])
         else:
@@ -95,6 +99,7 @@ def generate_ids():
     
     print("Missing Pictures:\n" + '\n'.join(skipped) + '\n')
     print("Done! (" + str(len(names)-len(skipped)) + "/" + str(len(names)) + ") have been generated successfully.")
+    webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
 
     
 
