@@ -1,7 +1,7 @@
 import main
 import idsettings as settings
 import pandas as pd
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageOps
 import openpyxl
 from openpyxl.utils import column_index_from_string
 from openpyxl_image_loader import SheetImageLoader
@@ -58,14 +58,20 @@ def generate_id(template, name, picture, qrcode):
     name_size = (settings.NAME_POS[2], settings.NAME_POS[3])
     id.paste(generate_name(name_size, formatted_name, ImageFont.truetype(settings.FONT, settings.FONT_SIZE), settings.FONT_COLOR), name_pos)
     
-    pic_pos = (settings.PICTURE_POS[0], settings.PICTURE_POS[1])
-    pic_size = (settings.PICTURE_POS[2], settings.PICTURE_POS[3])
     if picture != None:
-        id.paste(picture.resize(pic_size), pic_pos)
-    
-    qr_pos = (settings.QR_POS[0], settings.QR_POS[1])
-    qr_size = (settings.QR_POS[2], settings.QR_POS[3])
+        pic_pos = (settings.PICTURE_POS[0], settings.PICTURE_POS[1])
+        pic_size = (settings.PICTURE_POS[2], settings.PICTURE_POS[3])
+        if settings.ASPECT_RATIO.lower() == 'stretch':
+            id.paste(picture.resize(pic_size), pic_pos)
+        else: #keep
+            resized_pic = ImageOps.contain(picture, pic_size)
+            new_pos = (int((pic_size[0]/2)-(resized_pic.size[0]/2)+pic_pos[0]),
+                       int((pic_size[1]/2)-(resized_pic.size[1]/2)+pic_pos[1]))
+            id.paste(resized_pic, new_pos)
+
     if qrcode != None:
+        qr_pos = (settings.QR_POS[0], settings.QR_POS[1])
+        qr_size = (settings.QR_POS[2], settings.QR_POS[3])
         id.paste(qrcode.resize(qr_size), qr_pos)
 
     id.save('exports/test.png')
