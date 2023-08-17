@@ -31,7 +31,6 @@ def load_images(excel, column, total):
     image_loader = SheetImageLoader(sheet)
     images = []
     for i in range(total):
-        image = image_loader.get(settings.PICTURE+str(index+1))
         if image_loader.image_in(str(column)+str(i)):
             images.append(image_loader.get(column+str(i)))
         else:
@@ -84,8 +83,12 @@ def generate_id(template, name, picture, qrcode):
 
 def generate_ids():
     names = compile_names(settings.EXCEL)
+    if settings.RANGE > 0:
+        names = names[:settings.RANGE]
     str_names = "\n".join(names)
+
     qrcodes = generate_qr(str_names)
+    
     pictures = load_images(settings.EXCEL, settings.PICTURE, len(names))
 
     skipped = []
