@@ -31,7 +31,6 @@ def load_images(excel, column, total):
     image_loader = SheetImageLoader(sheet)
     images = []
     for i in range(total):
-        image = image_loader.get(settings.PICTURE+str(index+1))
         if image_loader.image_in(str(column)+str(i)):
             images.append(image_loader.get(column+str(i)))
         else:
