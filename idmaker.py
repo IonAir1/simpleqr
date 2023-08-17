@@ -52,8 +52,8 @@ def generate_name(size, message, font, fontColor):
 
 def generate_id(template, name, picture, qrcode):
     id = Image.open(template)
-    name = name.split(', ')
-    formatted_name = name[1] + ' ' + name[0]
+    name_split = name.split(', ')
+    formatted_name = name_split[1] + ' ' + name_split[0]
     name_pos = (settings.NAME_POS[0], settings.NAME_POS[1])
     name_size = (settings.NAME_POS[2], settings.NAME_POS[3])
     id.paste(generate_name(name_size, formatted_name, ImageFont.truetype(settings.FONT, settings.FONT_SIZE), settings.FONT_COLOR), name_pos)
@@ -74,7 +74,7 @@ def generate_id(template, name, picture, qrcode):
         qr_size = (settings.QR_POS[2], settings.QR_POS[3])
         id.paste(qrcode.resize(qr_size), qr_pos)
 
-    id.save('exports/test.png')
+    id.save('exports/'+name+'.png')
 
 
 def generate_ids():
