@@ -54,7 +54,9 @@ def generate_id(template, name, picture, qrcode):
     id = Image.open(template)
     name = name.split(', ')
     formatted_name = name[1] + ' ' + name[0]
-    id.paste(generate_name(settings.NAME_SIZE, formatted_name, ImageFont.truetype(settings.FONT, settings.FONT_SIZE), settings.FONT_COLOR), settings.NAME_POS)
+    name_pos = (settings.NAME_POS[0], settings.NAME_POS[1])
+    name_size = (settings.NAME_POS[2], settings.NAME_POS[3])
+    id.paste(generate_name(name_size, formatted_name, ImageFont.truetype(settings.FONT, settings.FONT_SIZE), settings.FONT_COLOR), name_pos)
     
     pic_pos = (settings.PICTURE_POS[0], settings.PICTURE_POS[1])
     pic_size = (settings.PICTURE_POS[2], settings.PICTURE_POS[3])
