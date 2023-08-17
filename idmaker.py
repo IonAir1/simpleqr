@@ -33,9 +33,9 @@ def load_images(excel, column, total):
     image_loader = SheetImageLoader(sheet)
     images = []
     for i in range(total):
-        print("Extracting images from excel file (" + str(i) + "/" + str(total) + ")")
-        if image_loader.image_in(str(column)+str(i)):
-            images.append(image_loader.get(column+str(i)))
+        print("Extracting images from excel file (" + str(i+1) + "/" + str(total) + ")")
+        if image_loader.image_in(str(column)+str(i+1)):
+            images.append(image_loader.get(column+str(i+1)))
         else:
             images.append(None)
     return images
@@ -99,7 +99,7 @@ def generate_ids():
     print("Generating IDs")
     skipped = []
     for i in range(len(names)):
-        print("Generating IDs (" + str(i) + "/" + str(len(names)) + ")")
+        print("Generating IDs (" + str(i+1) + "/" + str(len(names)) + ")")
         id = generate_id(settings.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i])
         if id == None:
             skipped.append(names[i])
