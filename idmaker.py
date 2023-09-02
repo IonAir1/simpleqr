@@ -27,6 +27,12 @@ def compile_names(excel):
     return names
 
 
+def compile_rooms(excel):
+    df = pd.read_excel(excel, header=None)
+    rooms = df[column_index_from_string(settings.ROOM_NUMBER)-1].to_list()
+    return rooms
+
+
 def load_images(excel, column, total):
     wb = openpyxl.load_workbook(excel)
     sheet = wb.worksheets[0]
@@ -46,7 +52,7 @@ def generate_qr(names):
     return qrcodes
 
 
-def generate_name(size, message, font, fontColor):
+def generate_text(size, message, font, fontColor):
     W, H = size
     image = Image.new('RGBA', size, (255, 255, 255,0))
     draw = ImageDraw.Draw(image)
@@ -55,14 +61,20 @@ def generate_name(size, message, font, fontColor):
     return image
 
 
-def generate_id(template, name, picture, qrcode):
+def generate_id(template, name, picture, qrcode, room):
     id = Image.open(template)
+
     name_split = name.split(', ')
     formatted_name = name_split[1] + ' ' + name_split[0]
     name_pos = (settings.NAME_POS[0], settings.NAME_POS[1])
     name_size = (settings.NAME_POS[2], settings.NAME_POS[3])
-    id.paste(generate_name(name_size, formatted_name, ImageFont.truetype(settings.FONT, settings.FONT_SIZE), settings.FONT_COLOR), name_pos)
+    id.paste(generate_text(name_size, formatted_name, ImageFont.truetype(settings.FONT, settings.NAME_SIZE), settings.NAME_COLOR), name_pos)
     
+    if room != '':
+        room_pos = (settings.RN_POS[0], settings.RN_POS[1])
+        room_size = (settings.RN_POS[2], settings.RN_POS[3])
+        id.paste(generate_text(room_size, room, ImageFont.truetype(settings.FONT, settings.RN_SIZE), settings.RN_COLOR), room_pos)
+
     if picture != None:
         pic_pos = (settings.PICTURE_POS[0], settings.PICTURE_POS[1])
         pic_size = (settings.PICTURE_POS[2], settings.PICTURE_POS[3])
@@ -96,11 +108,20 @@ def generate_ids():
     
     pictures = load_images(settings.EXCEL, settings.PICTURE, len(names))
 
+    rooms = []
+    if settings.ROOM_NUMBER != '':
+        rooms = compile_rooms(settings.EXCEL)
+
     print("Generating IDs")
     skipped = []
     for i in range(len(names)):
         print("Generating IDs (" + str(i+1) + "/" + str(len(names)) + ")")
-        id = generate_id(settings.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i])
+
+        room = ''
+        if rooms != []:
+            room = rooms[i]
+
+        id = generate_id(settings.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i], room)
         if id == None:
             skipped.append(names[i])
         else:
@@ -111,5 +132,4 @@ def generate_ids():
     webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
 
     
-
 generate_ids()
