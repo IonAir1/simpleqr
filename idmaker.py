@@ -7,6 +7,7 @@ import webbrowser
 from PIL import Image, ImageFont, ImageDraw, ImageOps
 from openpyxl.utils import column_index_from_string
 from openpyxl_image_loader import SheetImageLoader
+from openpyxl import Workbook
 
 
 def compile_names(excel):
@@ -96,7 +97,24 @@ def generate_id(template, name, picture, qrcode, room):
     return id
 
 
+def clear_excel():
+    Wb = Workbook()
+    sheet = Wb.worksheets[0]
+    sheet.column_dimensions[settings.NAME].width = 25
+    sheet.column_dimensions[settings.PICTURE].width = 50
+    
+    for i in range(200):
+        sheet.row_dimensions[i+1].height = 200
+
+    Wb.save(settings.EXCEL)
+
+
 def generate_ids():
+    if not os.path.isfile(settings.EXCEL):
+        clear_excel()
+        print("Excel File not found. Generating a new excel file.")
+        return
+
     print("Extracting Names")
     names = compile_names(settings.EXCEL)
     if settings.RANGE > 0:
@@ -130,6 +148,10 @@ def generate_ids():
     print("Missing Pictures:\n" + '\n'.join(skipped) + '\n')
     print("Done! (" + str(len(names)-len(skipped)) + "/" + str(len(names)) + ") have been generated successfully.")
     webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
-
     
+    if settings.CLEAR_EXCEL:
+        clear_excel()
+
+
+# clear_excel()
 generate_ids()
