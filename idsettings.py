@@ -2,6 +2,7 @@
 SPLIT = True
 INVERT = True
 DELETE_PREV = False
+CLEAR_EXCEL = True
 BORDER_SIZE = 0
 LINK = "www.google.com/=lastname=firstname"
 
