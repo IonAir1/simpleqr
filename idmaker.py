@@ -1,4 +1,4 @@
-import main
+import simpleqr
 import pandas as pd
 import openpyxl
 import os
@@ -97,7 +97,7 @@ class IDMaker():
         return images
 
     def generate_qr(self, names):
-        qr = main.SimpleQR(names, self.settings.LINK)
+        qr = simpleqr.SimpleQR(names, self.settings.LINK)
         qrcodes = qr.generate(invert=self.settings.INVERT, split=self.settings.SPLIT, save=False, clear=self.settings.DELETE_PREV, border=self.settings.BORDER_SIZE)
         return qrcodes
 
