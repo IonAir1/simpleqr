@@ -229,7 +229,7 @@ class IDMaker():
     #generates text image to paste on id
     def generate_text(self, size, message, font, fontColor):
         W, H = size
-        image = Image.new('RGBA', size, (255, 255, 255,0))
+        image = Image.new('RGB', size, (255, 255, 255))
         draw = ImageDraw.Draw(image)
         _, _, w, h = draw.textbbox((0, 0), str(message), font=font)
         draw.text(((W-w)/2, (H-h)/2), str(message), font=font, fill=fontColor)
@@ -299,7 +299,7 @@ class IDMaker():
         str_names = "\n".join(names)
 
         print("Generating QR Codes")
-        qrcodes = SimpleQR(names, self.LINK).generate(invert=self.INVERT, split=self.SPLIT, save=False, clear=self.DELETE_PREV, border=self.BORDER_SIZE)
+        qrcodes = SimpleQR("\n".join(names), self.LINK).generate(invert=self.INVERT, split=self.SPLIT, save=False, clear=self.DELETE_PREV, border=self.BORDER_SIZE)
         
         pictures = self.load_images(self.EXCEL, self.PICTURE, len(names))
 
