@@ -143,41 +143,41 @@ class IDMaker():
         if not os.path.isfile(settings):
             raise Exception("Config File \""+settings+"\" is not found")
 
-        self.cfg = ConfigParser()
-        self.cfg.read(settings)
-        if not self.cfg.has_section('simpleqr'):
+        cfg = ConfigParser()
+        cfg.read(settings)
+        if not cfg.has_section('simpleqr'):
             raise Exception("\"simpleqr\" section is missing in config file")
-        if not self.cfg.has_section('excel'):
+        if not cfg.has_section('excel'):
             raise Exception("\"excel\" section is missing in config file")
-        if not self.cfg.has_section('id'):
+        if not cfg.has_section('id'):
             raise Exception("\"id\" section is missing in config file")
         
-        self.SPLIT = (self.cfg.get('simpleqr','SPLIT') == "True") if self.cfg.has_option('simpleqr', 'SPLIT') else None
-        self.INVERT = (self.cfg.get('simpleqr','INVERT') == "True") if self.cfg.has_option('simpleqr', 'INVERT') else None
-        self.DELETE_PREV = (self.cfg.get('simpleqr','DELETE_PREV') == "True") if self.cfg.has_option('simpleqr', 'DELETE_PREV') else None
-        self.CLEAR_EXCEL = (self.cfg.get('simpleqr','CLEAR_EXCEL') == "True") if self.cfg.has_option('simpleqr', 'CLEAR_EXCEL') else None
-        self.BORDER_SIZE = self.cfg.getint('simpleqr','BORDER_SIZE') if self.cfg.has_option('simpleqr', 'BORDER_SIZE') else None
-        self.LINK = self.cfg.get('simpleqr','LINK') if self.cfg.has_option('simpleqr', 'LINK') else None
+        self.SPLIT = (cfg.get('simpleqr','SPLIT') == "True") if cfg.has_option('simpleqr', 'SPLIT') else None
+        self.INVERT = (cfg.get('simpleqr','INVERT') == "True") if cfg.has_option('simpleqr', 'INVERT') else None
+        self.DELETE_PREV = (cfg.get('simpleqr','DELETE_PREV') == "True") if cfg.has_option('simpleqr', 'DELETE_PREV') else None
+        self.CLEAR_EXCEL = (cfg.get('simpleqr','CLEAR_EXCEL') == "True") if cfg.has_option('simpleqr', 'CLEAR_EXCEL') else None
+        self.BORDER_SIZE = cfg.getint('simpleqr','BORDER_SIZE') if cfg.has_option('simpleqr', 'BORDER_SIZE') else None
+        self.LINK = cfg.get('simpleqr','LINK') if cfg.has_option('simpleqr', 'LINK') else None
         
-        self.EXCEL = self.cfg.get('excel','EXCEL') if self.cfg.has_option('excel', 'EXCEL') else None
-        self.RANGE = self.cfg.getint('excel','RANGE') if self.cfg.has_option('excel', 'RANGE') else None
-        self.NAME = self.cfg.get('excel','NAME') if self.cfg.has_option('excel', 'NAME') else None
-        self.MIDDLE_NAME = self.cfg.get('excel','MIDDLE_NAME') if self.cfg.has_option('excel', 'MIDDLE_NAME') else None
-        self.PICTURE = self.cfg.get('excel','PICTURE') if self.cfg.has_option('excel', 'PICTURE') else None
-        self.ROOM_NUMBER = self.cfg.get('excel','ROOM_NUMBER') if self.cfg.has_option('excel', 'ROOM_NUMBER') else None
+        self.EXCEL = cfg.get('excel','EXCEL') if cfg.has_option('excel', 'EXCEL') else None
+        self.RANGE = cfg.getint('excel','RANGE') if cfg.has_option('excel', 'RANGE') else None
+        self.NAME = cfg.get('excel','NAME') if cfg.has_option('excel', 'NAME') else None
+        self.MIDDLE_NAME = cfg.get('excel','MIDDLE_NAME') if cfg.has_option('excel', 'MIDDLE_NAME') else None
+        self.PICTURE = cfg.get('excel','PICTURE') if cfg.has_option('excel', 'PICTURE') else None
+        self.ROOM_NUMBER = cfg.get('excel','ROOM_NUMBER') if cfg.has_option('excel', 'ROOM_NUMBER') else None
        
-        self.TEMPLATE = self.cfg.get('id','TEMPLATE') if self.cfg.has_option('id', 'TEMPLATE') else None
-        self.FONT = self.cfg.get('id','FONT') if self.cfg.has_option('id', 'FONT') else None
-        self.NAME_SIZE = self.cfg.getint('id','NAME_SIZE') if self.cfg.has_option('id', 'NAME_SIZE') else None
-        self.NAME_COLOR = tuple(map(int, self.cfg.get('id','NAME_COLOR').replace(' ', '').split(','))) if self.cfg.has_option('id', 'NAME_COLOR') else None
-        self.PICTURE_POS = tuple(map(int, self.cfg.get('id','PICTURE_POS').replace(' ', '').split(','))) if self.cfg.has_option('id', 'PICTURE_POS') else None
-        self.ASPECT_RATIO = self.cfg.get('id','ASPECT_RATIO') if self.cfg.has_option('id', 'ASPECT_RATIO') else None
-        self.MISSING_PICTURE = self.cfg.get('id','MISSING_PICTURE') if self.cfg.has_option('id', 'MISSING_PICTURE') else None
-        self.QR_POS = tuple(map(int, self.cfg.get('id','QR_POS').replace(' ', '').split(','))) if self.cfg.has_option('id', 'QR_POS') else None
-        self.NAME_POS = tuple(map(int, self.cfg.get('id','NAME_POS').replace(' ', '').split(','))) if self.cfg.has_option('id', 'NAME_POS') else None
-        self.RN_SIZE = self.cfg.getint('id','RN_SIZE') if self.cfg.has_option('id', 'RN_SIZE') else None
-        self.RN_COLOR = self.cfg.get('id','RN_COLOR') if self.cfg.has_option('id', 'RN_COLOR') else None
-        self.RN_POS = tuple(map(int, self.cfg.get('id','RN_POS').replace(' ', '').split(','))) if self.cfg.has_option('id', 'RN_POS') else None
+        self.TEMPLATE = cfg.get('id','TEMPLATE') if cfg.has_option('id', 'TEMPLATE') else None
+        self.FONT = cfg.get('id','FONT') if cfg.has_option('id', 'FONT') else None
+        self.NAME_SIZE = cfg.getint('id','NAME_SIZE') if cfg.has_option('id', 'NAME_SIZE') else None
+        self.NAME_COLOR = tuple(map(int, cfg.get('id','NAME_COLOR').replace(' ', '').split(','))) if cfg.has_option('id', 'NAME_COLOR') else None
+        self.PICTURE_POS = tuple(map(int, cfg.get('id','PICTURE_POS').replace(' ', '').split(','))) if cfg.has_option('id', 'PICTURE_POS') else None
+        self.ASPECT_RATIO = cfg.get('id','ASPECT_RATIO') if cfg.has_option('id', 'ASPECT_RATIO') else None
+        self.MISSING_PICTURE = cfg.get('id','MISSING_PICTURE') if cfg.has_option('id', 'MISSING_PICTURE') else None
+        self.QR_POS = tuple(map(int, cfg.get('id','QR_POS').replace(' ', '').split(','))) if cfg.has_option('id', 'QR_POS') else None
+        self.NAME_POS = tuple(map(int, cfg.get('id','NAME_POS').replace(' ', '').split(','))) if cfg.has_option('id', 'NAME_POS') else None
+        self.RN_SIZE = cfg.getint('id','RN_SIZE') if cfg.has_option('id', 'RN_SIZE') else None
+        self.RN_COLOR = cfg.get('id','RN_COLOR') if cfg.has_option('id', 'RN_COLOR') else None
+        self.RN_POS = tuple(map(int, cfg.get('id','RN_POS').replace(' ', '').split(','))) if cfg.has_option('id', 'RN_POS') else None
         
         for var in vars(self):
             if getattr(self, var) == None:
