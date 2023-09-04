@@ -68,6 +68,44 @@ class TextX(tk.Text):
             self.delete(tk.SEL_FIRST, tk.SEL_LAST)
 
 
+#Extended Text Widget that includes a context menu and select all support
+class EntryX(tk.Entry):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.menu = tk.Menu(self, tearoff=False)
+        self.menu.add_command(label="Cut", command=self.popup_cut)
+        self.menu.add_command(label="Copy", command=self.popup_copy)
+        self.menu.add_command(label="Paste", command=self.popup_paste)
+        self.menu.bind("<FocusOut>",lambda x: self.menu.unpost())
+        self.bind("<Button-3>", self.display_popup)
+        self.bind("<Control-Key-a>", select_all)
+        self.bind("<Control-Key-A>", select_all)
+        self.bind('<Control-v>', self.paste)
+        self.bind('<Control-V>', self.paste)
+
+    def display_popup(self, event):
+        self.menu.post(event.x_root, event.y_root)
+        self.menu.focus_set()
+
+    def popup_copy(self):
+        self.event_generate("<<Copy>>")
+        self.menu.unpost()
+
+    def popup_cut(self):
+        self.event_generate("<<Cut>>")
+        self.menu.unpost()
+
+    def popup_paste(self):
+        self.event_generate("<<Paste>>")
+        self.paste(False)
+        self.menu.unpost()
+
+    def paste(self, e):
+        if self.tag_ranges(tk.SEL):
+            self.delete(tk.SEL_FIRST, tk.SEL_LAST)
+
+
 def on_closing():
     config.save('url', link_var.get())
     config.save('invert', bool(int(invert_var.get())))
@@ -126,7 +164,7 @@ names_text.pack(padx=10, pady=(0, 10), expand=True, fill='y')
 fl = ttk.LabelFrame(root, text='G Forms Prefill link') #forms link frame
 fl.pack(fill='x', padx=5, pady=5)
 
-fl_entry = ttk.Entry(fl, textvariable=link_var, takefocus=False) #forms link entry input
+fl_entry = EntryX(fl, textvariable=link_var, takefocus=False) #forms link entry input
 fl_entry.bind("<FocusOut>", lambda event: config.save('url', link_var.get()))
 fl_entry.bind('<Control-a>', lambda x: fl_entry.selection_range(0, 'end') or "break")
 fl_entry.bind('<Control-A>', lambda x: fl_entry.selection_range(0, 'end') or "break")
