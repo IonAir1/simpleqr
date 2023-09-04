@@ -140,6 +140,7 @@ class SimpleQR():
 
 class IDMaker():
     def __init__(self, settings):
+        #read config file
         if not os.path.isfile(settings):
             raise Exception("Config File \""+settings+"\" is not found")
 
@@ -184,6 +185,7 @@ class IDMaker():
                 raise Exception(var+" is missing from config file")
 
 
+    #collects the names from excel file to list
     def compile_names(self, excel):
         df = pd.read_excel(excel, header=None)
 
@@ -202,12 +204,14 @@ class IDMaker():
         return names
 
 
+    #collects the room numbers from excel file to list
     def compile_rooms(self, excel):
         df = pd.read_excel(excel, header=None)
         rooms = df[column_index_from_string(self.ROOM_NUMBER)-1].to_list()
         return rooms
 
 
+    #collects the pictures from excel file to list
     def load_images(self, excel, column, total):
         wb = openpyxl.load_workbook(excel)
         sheet = wb.worksheets[0]
@@ -222,7 +226,7 @@ class IDMaker():
         return images
 
 
-
+    #generates text image to paste on id
     def generate_text(self, size, message, font, fontColor):
         W, H = size
         image = Image.new('RGBA', size, (255, 255, 255,0))
@@ -232,6 +236,7 @@ class IDMaker():
         return image
 
 
+    #paste id elements to template
     def generate_id(self, template, name, picture, qrcode, room):
         id = Image.open(template)
 
@@ -267,6 +272,7 @@ class IDMaker():
         return id
 
 
+    #clear or generate a new clean excel file ready for use
     def clear_excel(self):
         Wb = Workbook()
         sheet = Wb.worksheets[0]
@@ -279,6 +285,7 @@ class IDMaker():
         Wb.save(self.EXCEL)
 
 
+    #generate ids from excel file
     def generate_ids(self):
         if not os.path.isfile(self.EXCEL):
             self.clear_excel()
