@@ -221,10 +221,6 @@ class IDMaker():
                 images.append(None)
         return images
 
-    def generate_qr(self, names):
-        qr = SimpleQR(names, self.LINK)
-        qrcodes = qr.generate(invert=self.INVERT, split=self.SPLIT, save=False, clear=self.DELETE_PREV, border=self.BORDER_SIZE)
-        return qrcodes
 
 
     def generate_text(self, size, message, font, fontColor):
@@ -296,7 +292,7 @@ class IDMaker():
         str_names = "\n".join(names)
 
         print("Generating QR Codes")
-        qrcodes = self.generate_qr(str_names)
+        qrcodes = SimpleQR(names, self.LINK).generate(invert=self.INVERT, split=self.SPLIT, save=False, clear=self.DELETE_PREV, border=self.BORDER_SIZE)
         
         pictures = self.load_images(self.EXCEL, self.PICTURE, len(names))
 
