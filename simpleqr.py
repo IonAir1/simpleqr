@@ -140,6 +140,9 @@ class SimpleQR():
 
 class IDMaker():
     def __init__(self, settings):
+        if not os.path.isfile(settings):
+            raise Exception("Config File \""+settings+"\" is not found")
+
         self.cfg = ConfigParser()
         self.cfg.read(settings)
         if not self.cfg.has_section('simpleqr'):
@@ -148,7 +151,6 @@ class IDMaker():
             raise Exception("\"excel\" section is missing in config file")
         if not self.cfg.has_section('id'):
             raise Exception("\"id\" section is missing in config file")
-
         
         self.SPLIT = (self.cfg.get('simpleqr','SPLIT') == "True") if self.cfg.has_option('simpleqr', 'SPLIT') else None
         self.INVERT = (self.cfg.get('simpleqr','INVERT') == "True") if self.cfg.has_option('simpleqr', 'INVERT') else None
