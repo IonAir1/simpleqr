@@ -28,15 +28,22 @@ class TextX(tk.Text):
         self.menu.add_command(label="Undo", command=self.popup_undo)
         self.menu.add_command(label="Redo", command=self.popup_redo)
         self.menu.add_separator()
+        self.menu.add_command(label="Select All", command=lambda: self.select_all(''))
         self.menu.add_command(label="Cut", command=self.popup_cut)
         self.menu.add_command(label="Copy", command=self.popup_copy)
         self.menu.add_command(label="Paste", command=self.popup_paste)
         self.menu.bind("<FocusOut>",lambda x: self.menu.unpost())
         self.bind("<Button-3>", self.display_popup)
-        self.bind("<Control-Key-a>", select_all)
-        self.bind("<Control-Key-A>", select_all)
+        self.bind("<Control-Key-a>", self.select_all)
+        self.bind("<Control-Key-A>", self.select_all)
         self.bind('<Control-v>', self.paste)
         self.bind('<Control-V>', self.paste)
+
+    def select_all(self, event):
+        self.tag_add(tk.SEL, "1.0", tk.END)
+        self.mark_set(tk.INSERT, "1.0")
+        self.see(tk.INSERT)
+        return 'break'
 
     def display_popup(self, event):
         self.menu.post(event.x_root, event.y_root)
@@ -74,13 +81,14 @@ class EntryX(tk.Entry):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.menu = tk.Menu(self, tearoff=False)
+        self.menu.add_command(label="Select All", command=lambda: self.select_range(0, tk.END))
         self.menu.add_command(label="Cut", command=self.popup_cut)
         self.menu.add_command(label="Copy", command=self.popup_copy)
         self.menu.add_command(label="Paste", command=self.popup_paste)
         self.menu.bind("<FocusOut>",lambda x: self.menu.unpost())
         self.bind("<Button-3>", self.display_popup)
-        self.bind("<Control-Key-a>", select_all)
-        self.bind("<Control-Key-A>", select_all)
+        self.bind("<Control-Key-a>", lambda: self.select_range(0, tk.END))
+        self.bind("<Control-Key-A>", lambda: self.select_range(0, tk.END))
         self.bind('<Control-v>', self.paste)
         self.bind('<Control-V>', self.paste)
 
@@ -139,13 +147,6 @@ def generate_thread_function(**kwargs):
         simpleqr.generate(invert=invert_var.get(), split=split_var.get())
     
     webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
-
-
-def select_all(event):
-    names_text.tag_add(tk.SEL, "1.0", tk.END)
-    names_text.mark_set(tk.INSERT, "1.0")
-    names_text.see(tk.INSERT)
-    return 'break'
 
 
 #title
