@@ -1,5 +1,5 @@
-from main import Config
-from main import SimpleQR
+from simpleqr import Config
+from simpleqr import SimpleQR
 from tkinter import ttk
 import tkinter as tk
 import threading
