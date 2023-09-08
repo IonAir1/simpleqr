@@ -157,6 +157,7 @@ class IDMaker():
         self.INVERT = (cfg.get('simpleqr','INVERT') == "True") if cfg.has_option('simpleqr', 'INVERT') else None
         self.DELETE_PREV = (cfg.get('simpleqr','DELETE_PREV') == "True") if cfg.has_option('simpleqr', 'DELETE_PREV') else None
         self.CLEAR_EXCEL = (cfg.get('simpleqr','CLEAR_EXCEL') == "True") if cfg.has_option('simpleqr', 'CLEAR_EXCEL') else None
+        self.CONFIRM = (cfg.get('simpleqr','CONFIRM') == "True") if cfg.has_option('simpleqr', 'CONFIRM') else None
         self.BORDER_SIZE = cfg.getint('simpleqr','BORDER_SIZE') if cfg.has_option('simpleqr', 'BORDER_SIZE') else None
         self.LINK = cfg.get('simpleqr','LINK') if cfg.has_option('simpleqr', 'LINK') else None
         
@@ -326,5 +327,19 @@ class IDMaker():
         print("Done! (" + str(len(names)-len(skipped)) + "/" + str(len(names)) + ") have been generated successfully.")
         webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
         
+        if self.CONFIRM:
+            inp = input("Confirm QR Codes? y/enter=yes,r=retry,n=cancel \n")
+            if inp.lower() == 'r':
+                print("Retrying...")
+                self.generate_ids()
+                return
+            elif inp.lower() == 'n':
+                print("Cacnceled!")
+                for name in names:
+                    os.remove('exports/'+name+'.png')
+                return
+            elif inp.lower() in ['', 'y']:
+                print("Confirmed!")
+
         if self.CLEAR_EXCEL:
             self.clear_excel()
