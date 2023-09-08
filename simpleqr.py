@@ -7,6 +7,7 @@ import openpyxl
 import os
 import pandas as pd
 import qrcode
+import shutil
 import webbrowser
 
 
@@ -316,6 +317,8 @@ class IDMaker():
 
         print("Generating IDs")
         skipped = []
+        if not os.path.isdir("temp"):
+            os.makedirs("temp")
         for i in range(len(names)):
             print("Generating IDs (" + str(i+1) + "/" + str(len(names)) + ")")
 
@@ -327,11 +330,11 @@ class IDMaker():
             if id == None:
                 skipped.append(names[i])
             else:
-                id.save('exports/'+names[i]+'.png')
+                id.save('temp/'+names[i]+'.png')
         
         print("Missing Pictures:\n" + '\n'.join(skipped) + '\n')
         print("Done! (" + str(len(names)-len(skipped)) + "/" + str(len(names)) + ") have been generated successfully.")
-        webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
+        webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/temp')
         
         if self.CONFIRM:
             inp = input("Confirm QR Codes? y/enter=yes,r=retry,n=cancel \n")
@@ -341,11 +344,18 @@ class IDMaker():
                 return
             elif inp.lower() == 'n':
                 print("Cacnceled!")
-                for name in names:
-                    os.remove('exports/'+name+'.png')
+                shutil.rmtree("temp")
                 return
             elif inp.lower() in ['', 'y']:
                 print("Confirmed!")
 
+        if self.DELETE_PREV:
+            shutil.rmtree("exports")
+            os.makedirs("exports")
+        for file in os.listdir("temp"):
+            shutil.copyfile("temp/"+file,"exports/"+file)
+        shutil.rmtree("temp")
+
         if self.CLEAR_EXCEL:
             self.clear_excel()
+        webbrowser.open('file://' + os.getcwd().replace('\\', '/') + '/exports')
