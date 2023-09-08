@@ -273,8 +273,8 @@ class IDMaker():
         return id
 
 
-    #clear or generate a new clean excel file ready for use
-    def clear_excel(self):
+    #generate a new clean excel file ready for use
+    def new_excel(self):
         Wb = Workbook()
         sheet = Wb.worksheets[0]
         sheet.column_dimensions[self.NAME].width = 25
@@ -286,10 +286,16 @@ class IDMaker():
         Wb.save(self.EXCEL)
 
 
+    #clear excel file
+    def clear_excel(self):
+        os.remove(self.EXCEL)
+        self.new_excel()
+
+
     #generate ids from excel file
     def generate_ids(self):
         if not os.path.isfile(self.EXCEL):
-            self.clear_excel()
+            self.new_excel()
             print("Excel File not found. Generating a new excel file.")
             return
 
