@@ -85,9 +85,12 @@ class SimpleQR():
     def generate_links(self, names, url, **kwargs):
         if kwargs.get('replace', True):
             urls = []
-            for name in names:
+            rooms = kwargs.get('room', None)
+
+            for i in range(len(names)):
+                output_url = ""
                 if kwargs.get('split', False) in ['1',True]: #check if split name is on
-                    last_first = name.split(',')
+                    last_first = names[i].split(',')
                     new_url = url.replace('=lastname','='+last_first[0].strip().replace(' ', '%20'))
 
                     if len(last_first) > 1: #check if first name exists
@@ -101,18 +104,21 @@ class SimpleQR():
                                 else:
                                     final_url = final_url.replace('addfirstname','%20'+name.strip().replace(' ', '%20')+'addfirstname')
                                     final_url = final_url.replace('=firstname','='+name.strip().replace(' ', '%20')+'addfirstname')
-                            final_url = final_url.replace('addfirstname','').replace('addmiddlename','').replace('firstname','').replace('middlename','')
-                            urls.append(final_url)
+                            output_url = final_url.replace('addfirstname','').replace('addmiddlename','').replace('firstname','').replace('middlename','')
 
                         else:
                             new_url = new_url.replace('=firstname','='+last_first[1].strip().replace(' ', '%20'))
-                            urls.append(new_url.replace('firstname','').replace('middlename',''))
+                            output_url = new_url.replace('firstname','').replace('middlename','')
                     else:
-                        urls.append(new_url.replace('firstname','').replace('middlename',''))
+                        output_url = new_url.replace('firstname','').replace('middlename','')
 
                 else:
-                    final_url = url.replace('=name','='+name.replace(' ', '%20'))
-                    urls.append(final_url)
+                    output_url = url.replace('=name','='+name.replace(' ', '%20'))
+                
+                if rooms != None: #add rooms if required
+                    output_url = output_url.replace('=room', '='+str(rooms[i]))
+
+                urls.append(output_url)
 
             return urls
         elif not(kwargs.get('replace', False)):
@@ -163,7 +169,8 @@ class IDMaker():
         self.LINK = cfg.get('simpleqr','LINK') if cfg.has_option('simpleqr', 'LINK') else None
         
         self.EXCEL = cfg.get('excel','EXCEL') if cfg.has_option('excel', 'EXCEL') else None
-        self.RANGE = cfg.getint('excel','RANGE') if cfg.has_option('excel', 'RANGE') else None
+        self.START_ROW = cfg.getint('excel','START_ROW') if cfg.has_option('excel', 'START_ROW') else None
+        self.END_ROW = cfg.getint('excel','END_ROW') if cfg.has_option('excel', 'END_ROW') else None
         self.NAME = cfg.get('excel','NAME') if cfg.has_option('excel', 'NAME') else None
         self.MIDDLE_NAME = cfg.get('excel','MIDDLE_NAME') if cfg.has_option('excel', 'MIDDLE_NAME') else None
         self.PICTURE = cfg.get('excel','PICTURE') if cfg.has_option('excel', 'PICTURE') else None
@@ -179,7 +186,7 @@ class IDMaker():
         self.QR_POS = tuple(map(int, cfg.get('id','QR_POS').replace(' ', '').split(','))) if cfg.has_option('id', 'QR_POS') else None
         self.NAME_POS = tuple(map(int, cfg.get('id','NAME_POS').replace(' ', '').split(','))) if cfg.has_option('id', 'NAME_POS') else None
         self.RN_SIZE = cfg.getint('id','RN_SIZE') if cfg.has_option('id', 'RN_SIZE') else None
-        self.RN_COLOR = cfg.get('id','RN_COLOR') if cfg.has_option('id', 'RN_COLOR') else None
+        self.RN_COLOR = tuple(map(int, cfg.get('id','RN_COLOR').replace(' ', '').split(','))) if cfg.has_option('id', 'RN_COLOR') else None
         self.RN_POS = tuple(map(int, cfg.get('id','RN_POS').replace(' ', '').split(','))) if cfg.has_option('id', 'RN_POS') else None
         
         for var in vars(self):
@@ -302,18 +309,23 @@ class IDMaker():
 
         print("Extracting Names")
         names = self.compile_names(self.EXCEL)
-        if self.RANGE > 0:
-            names = names[:self.RANGE]
+
+        rooms = None
+        if self.ROOM_NUMBER != '':
+            rooms = self.compile_rooms(self.EXCEL)
+
+        pictures = self.load_images(self.EXCEL, self.PICTURE, len(names))
+
+        if self.END_ROW > 0:
+            names = names[:self.END_ROW]
+        if self.START_ROW > 0:
+            names = names[self.START_ROW-1:]
+            rooms = rooms[self.START_ROW-1:]
+            pictures = pictures [self.START_ROW-1:]
         str_names = "\n".join(names)
 
         print("Generating QR Codes")
-        qrcodes = SimpleQR("\n".join(names), self.LINK).generate(invert=self.INVERT, split=self.SPLIT, save=False, clear=self.DELETE_PREV, border=self.BORDER_SIZE)
-        
-        pictures = self.load_images(self.EXCEL, self.PICTURE, len(names))
-
-        rooms = []
-        if self.ROOM_NUMBER != '':
-            rooms = self.compile_rooms(self.EXCEL)
+        qrcodes = SimpleQR("\n".join(names), self.LINK).generate(invert=self.INVERT, split=self.SPLIT, save=False, clear=self.DELETE_PREV, border=self.BORDER_SIZE, room=rooms)
 
         print("Generating IDs")
         skipped = []
@@ -326,7 +338,7 @@ class IDMaker():
             if rooms != []:
                 room = rooms[i]
 
-            id = self.generate_id(self.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i], room)
+            id = self.generate_id(self.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i], None)#, room)
             if id == None:
                 skipped.append(names[i])
             else:
