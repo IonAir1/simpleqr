@@ -255,7 +255,7 @@ class IDMaker():
         name_size = (self.NAME_POS[2], self.NAME_POS[3])
         id.paste(self.generate_text(name_size, formatted_name, ImageFont.truetype(self.FONT, self.NAME_SIZE), self.NAME_COLOR), name_pos)
         
-        if room != '':
+        if room != None:
             room_pos = (self.RN_POS[0], self.RN_POS[1])
             room_size = (self.RN_POS[2], self.RN_POS[3])
             id.paste(self.generate_text(room_size, room, ImageFont.truetype(self.FONT, self.RN_SIZE), self.RN_COLOR), room_pos)
