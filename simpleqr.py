@@ -311,7 +311,7 @@ class IDMaker():
         names = self.compile_names(self.EXCEL)
 
         rooms = None
-        if self.ROOM_NUMBER != '':
+        if self.ROOM_NUMBER != '0':
             rooms = self.compile_rooms(self.EXCEL)
 
         pictures = self.load_images(self.EXCEL, self.PICTURE, len(names))
@@ -320,8 +320,10 @@ class IDMaker():
             names = names[:self.END_ROW]
         if self.START_ROW > 0:
             names = names[self.START_ROW-1:]
-            rooms = rooms[self.START_ROW-1:]
             pictures = pictures [self.START_ROW-1:]
+            if self.ROOM_NUMBER != '0':
+                rooms = rooms[self.START_ROW-1:]
+
         str_names = "\n".join(names)
 
         print("Generating QR Codes")
@@ -335,7 +337,7 @@ class IDMaker():
             print("Generating IDs (" + str(i+1) + "/" + str(len(names)) + ")")
 
             room = ''
-            if rooms != []:
+            if rooms != None:
                 room = rooms[i]
 
             id = self.generate_id(self.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i], None)#, room)
