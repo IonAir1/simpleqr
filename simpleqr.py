@@ -249,11 +249,9 @@ class IDMaker():
     def generate_id(self, template, name, picture, qrcode, room):
         id = Image.open(template)
 
-        name_split = name.split(', ')
-        formatted_name = name_split[1] + ' ' + name_split[0]
         name_pos = (self.NAME_POS[0], self.NAME_POS[1])
         name_size = (self.NAME_POS[2], self.NAME_POS[3])
-        id.paste(self.generate_text(name_size, formatted_name, ImageFont.truetype(self.FONT, self.NAME_SIZE), self.NAME_COLOR), name_pos)
+        id.paste(self.generate_text(name_size, name, ImageFont.truetype(self.FONT, self.NAME_SIZE), self.NAME_COLOR), name_pos)
         
         if room != None:
             room_pos = (self.RN_POS[0], self.RN_POS[1])
