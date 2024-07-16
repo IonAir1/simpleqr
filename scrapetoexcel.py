@@ -115,16 +115,19 @@ def create_workbook(students, **kwargs):
             cell = get_column_letter(current_column) + str(i+1)
             ws.row_dimensions[i+1].height = 200
 
-            if not student['picture'].endswith("saved_resource"):
-                img = ""
-                if student['picture'].endswith('.pdf'):
+            if student['picture'].endswith('.pdf'):
+                if kwargs.get('skip_pdf', False) == False:
                     to_pdf(student['picture']).save("temp/temp{}.png".format(i))
                     img = openpyxl.drawing.image.Image("temp/temp{}.png".format(i))
-                else:
-                    img = openpyxl.drawing.image.Image(student['picture'])
+                    img.width = 200
+                    img.height = 200
+                    ws.add_image(img, cell)
+            elif not student['picture'].endswith("saved_resource"):
+                img = openpyxl.drawing.image.Image(student['picture'])
                 img.width = 200
                 img.height = 200
                 ws.add_image(img, cell)
+
 
         current_column = 1
         first = False
@@ -132,9 +135,9 @@ def create_workbook(students, **kwargs):
     return wb
 
 
-def html_to_excel(file_path, output_path):
+def html_to_excel(file_path, output_path, **kwargs):
     students = scrape_html(file_path)
-    wb = create_workbook(students)
+    wb = create_workbook(students, **kwargs)
     # wb = create_workbook(students, number=True, sex=True, course=True, email=True, mobile=True)
     wb.save(output_path)
     if os.path.exists("temp"):
