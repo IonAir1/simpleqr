@@ -227,7 +227,7 @@ class IDMaker():
         image_loader = SheetImageLoader(sheet)
         images = []
         for i in range(total):
-            print("Extracting images from excel file (" + str(i+1) + "/" + str(total) + ")")
+            print("Extracting images from excel file ({}/{})".format(i+1, total))
             if image_loader.image_in(str(column)+str(i+1)):
                 images.append(image_loader.get(column+str(i+1)))
             else:
@@ -332,7 +332,7 @@ class IDMaker():
         if not os.path.isdir("temp"):
             os.makedirs("temp")
         for i in range(len(names)):
-            print("Generating IDs (" + str(i+1) + "/" + str(len(names)) + ")")
+            print("Generating IDs ({}/{})".format(i+1, len(names)))
 
             room = ''
             if rooms != None:
