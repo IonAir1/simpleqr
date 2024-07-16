@@ -124,8 +124,6 @@ def create_workbook(students, **kwargs):
         current_column = 1
         first = False
 
-    # if os.path.isfile("temp.png"):
-    #     os.remove("temp.png")
     return wb
 
 
