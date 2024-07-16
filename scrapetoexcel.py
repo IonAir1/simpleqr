@@ -151,3 +151,5 @@ def html_to_excel(file_path, output_path, **kwargs):
     if os.path.exists("temp"):
         shutil.rmtree("temp")
         os.makedirs("temp")
+    if kwargs.get('open', True) == True:
+        os.startfile(output_path)
