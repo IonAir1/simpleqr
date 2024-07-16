@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from PIL import Image
 from openpyxl.utils import get_column_letter
-import fitz
+import pypdfium2 as pdfium
 import openpyxl
 import openpyxl.drawing
 import openpyxl.drawing.image
@@ -13,11 +13,16 @@ def clean_string(string):
     return string.string.replace('\n','').replace('Ã‘','ñ').replace('Ã±','ñ').strip()
 
 
-def to_pdf(file, i):
-    pdf = fitz.open(file)
-    page = pdf.load_page(0)
-    pix = page.get_pixmap()
-    pix.pil_save("temp/temp{}.png".format(i))
+def to_pdf(file):
+    if not os.path.exists("temp"):
+        os.makedirs("temp")
+    
+    pdf = pdfium.PdfDocument(file)
+    image = pdf[0].render(scale=4).to_pil()
+
+
+    return image
+
 
 def toDictionary(html, file_path):
     info = html.find_all("td")
@@ -109,14 +114,14 @@ def create_workbook(students, **kwargs):
                 ws.column_dimensions[get_column_letter(current_column)].width = 50
             cell = get_column_letter(current_column) + str(i+1)
             ws.row_dimensions[i+1].height = 200
-            if student['picture'].endswith('.pdf'):
-                to_pdf(student['picture'], i)
-                img = openpyxl.drawing.image.Image("temp/temp{}.png".format(i))
-                img.width = 200
-                img.height = 200
-                ws.add_image(img, cell)
-            elif not student['picture'].endswith("saved_resource"):
-                img = openpyxl.drawing.image.Image(student['picture'])
+
+            if not student['picture'].endswith("saved_resource"):
+                img = ""
+                if student['picture'].endswith('.pdf'):
+                    to_pdf(student['picture']).save("temp/temp{}.png".format(i))
+                    img = openpyxl.drawing.image.Image("temp/temp{}.png".format(i))
+                else:
+                    img = openpyxl.drawing.image.Image(student['picture'])
                 img.width = 200
                 img.height = 200
                 ws.add_image(img, cell)
