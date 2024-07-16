@@ -52,7 +52,9 @@ def scrape_html(html):
     students_html.pop(0) #remove header
 
     students = []
+    total_students = len(students_html)
     for student in students_html:
+        print("Scraping HTML File ({}/{})".format(students_html.index(student)+1,total_students))
         students.append(toDictionary(student, html))
     return students
 
@@ -71,8 +73,12 @@ def create_workbook(students, **kwargs):
     current_column = 1
 
     first= True
+    total_students = len(students)
     for student in students:
         i = students.index(student)
+
+        print("Constructing Excel File ({}/{})".format(i+1, total_students))
+
         if number:
             ws.cell(row=i+1, column=current_column).value = student['number']
             if first:
@@ -136,9 +142,11 @@ def create_workbook(students, **kwargs):
 
 
 def html_to_excel(file_path, output_path, **kwargs):
+    print("Opening HTML File")
     students = scrape_html(file_path)
     wb = create_workbook(students, **kwargs)
     # wb = create_workbook(students, number=True, sex=True, course=True, email=True, mobile=True)
+    print("Saving Excel File")
     wb.save(output_path)
     if os.path.exists("temp"):
         shutil.rmtree("temp")
