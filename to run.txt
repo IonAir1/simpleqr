@@ -1,0 +1,20 @@
+first time:
+
+pip install virtualenv
+python -m virtualenv simpleqr
+Set-ExecutionPolicy Unrestricted -Scope Process
+simpleqr\Scripts\Activate.ps1
+pip install -r requirements.txt
+
+to run:
+Set-ExecutionPolicy Unrestricted -Scope Process
+simpleqr\Scripts\Activate.ps1
+
+generate excel:
+gen_excel.py
+
+generate id from excel:
+gen_id.py
+
+generate both:
+gen.py
