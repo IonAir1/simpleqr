@@ -336,9 +336,10 @@ class IDMaker():
 
             room = ''
             if rooms != None:
-                room = rooms[i]
+                if rooms[i] == rooms[i]: #check for nan
+                    room = "Room {}".format(rooms[i])
 
-            id = self.generate_id(self.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i], None)#, room)
+            id = self.generate_id(self.TEMPLATE, names[i].upper(), pictures[i], qrcodes[i], room)
             if id == None:
                 skipped.append(names[i])
             else:
