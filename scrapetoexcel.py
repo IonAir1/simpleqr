@@ -71,6 +71,7 @@ def create_workbook(students, **kwargs):
     wb = openpyxl.Workbook()
     ws = wb.worksheets[0]
     current_column = 1
+    space_before_pic = kwargs.get('space_before_pic', 0)
 
     first= True
     total_students = len(students)
@@ -116,6 +117,8 @@ def create_workbook(students, **kwargs):
             current_column += 1
 
         if picture:
+            current_column += space_before_pic
+
             if first:
                 ws.column_dimensions[get_column_letter(current_column)].width = 50
             cell = get_column_letter(current_column) + str(i+1)

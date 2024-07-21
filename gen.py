@@ -7,7 +7,7 @@ file_path = "sample/Dorm.DILIMAN.html"
 
 
 def scrape():
-    scrapetoexcel.html_to_excel(file_path, "to_input.xlsx", skip_pdf=False)
+    scrapetoexcel.html_to_excel(file_path, "to_input.xlsx", skip_pdf=False)#, space_before_pic=1) #add space before picture column
     inp = input("Proceed to QR Code Generation? y/enter=yes,r=retry,n=cancel \n")
     if inp.lower() == 'r':
         print("Retrying...")
