@@ -9,10 +9,12 @@ import os.path
 import shutil
 
 
+#fix ascii errors from enye
 def clean_string(string):
     return string.string.replace('\n','').replace('Ã‘','ñ').replace('Ã±','ñ').strip()
 
 
+#covert pdf files to pngs
 def to_pdf(file):
     if not os.path.exists("temp"):
         os.makedirs("temp")
@@ -20,10 +22,10 @@ def to_pdf(file):
     pdf = pdfium.PdfDocument(file)
     image = pdf[0].render(scale=4).to_pil()
 
-
     return image
 
 
+#covert html table data to dictionary
 def toDictionary(html, file_path):
     info = html.find_all("td")
     student = {}
@@ -44,7 +46,7 @@ def toDictionary(html, file_path):
     return student
 
 
-#get students' info
+#scrape students' info from html file
 def scrape_html(html):
     with open(html, "r", encoding='utf8') as f:
         doc = BeautifulSoup(f, "html.parser")
@@ -55,10 +57,11 @@ def scrape_html(html):
     total_students = len(students_html)
     for student in students_html:
         print("Scraping HTML File ({}/{})".format(students_html.index(student)+1,total_students))
-        students.append(toDictionary(student, html))
+        students.append(toDictionary(student, html)) #convert to dictionary
     return students
 
 
+#create excel file from list of dictionaries
 def create_workbook(students, **kwargs):
     number = kwargs.get('number', False) 
     name = kwargs.get('name', True)
@@ -144,6 +147,7 @@ def create_workbook(students, **kwargs):
     return wb
 
 
+#full procedure from html to excel file
 def html_to_excel(file_path, output_path, **kwargs):
     print("Opening HTML File")
     students = scrape_html(file_path)
