@@ -147,7 +147,8 @@ def create_workbook(students, **kwargs):
 def html_to_excel(file_path, output_path, **kwargs):
     print("Opening HTML File")
     students = scrape_html(file_path)
-    wb = create_workbook(students, **kwargs)
+    sorted_students = sorted(students, key=lambda x: x[kwargs.get('sort_by', 'number')])
+    wb = create_workbook(sorted_students, **kwargs)
     # wb = create_workbook(students, number=True, sex=True, course=True, email=True, mobile=True)
     print("Saving Excel File")
     wb.save(output_path)
