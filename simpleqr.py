@@ -248,8 +248,15 @@ class IDMaker():
                 img = Image.open(img_bytes)
                 images.append(img)
                 os.remove("drivetemppic")
-            #no image found
 
+            #load image from local file
+            elif os.path.isfile(sheet[cell_number].value): 
+                with open(sheet[cell_number].value, "rb") as f:
+                    img_bytes = BytesIO(f.read())
+                img = Image.open(img_bytes)
+                images.append(img)
+
+            #no image found
             else:
                 images.append(None)
         return images
