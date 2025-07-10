@@ -3,12 +3,14 @@ from openpyxl.utils import column_index_from_string
 from openpyxl_image_loader import SheetImageLoader
 from openpyxl import Workbook
 from PIL import Image, ImageFont, ImageDraw, ImageOps
+import gdown
 import openpyxl
 import os
 import pandas as pd
 import qrcode
 import shutil
 import webbrowser
+from io import BytesIO
 
 
 class Config():
@@ -226,10 +228,28 @@ class IDMaker():
         sheet = wb.worksheets[0]
         image_loader = SheetImageLoader(sheet)
         images = []
+    
+        if os.path.exists("drivetemppic"):
+            os.remove("drivetemppic")
+
         for i in range(total):
             print("Extracting images from excel file ({}/{})".format(i+1, total))
-            if image_loader.image_in(str(column)+str(i+1)):
+            cell_number = str(column)+str(i+1)
+
+            #load from image attached in excel file
+            if image_loader.image_in(cell_number):
                 images.append(image_loader.get(column+str(i+1)))
+
+            #load image from link
+            elif "https://" in sheet[cell_number].value:
+                gdown.download(sheet[cell_number].value, "drivetemppic", fuzzy=True, quiet=True)
+                with open("drivetemppic", "rb") as f:
+                    img_bytes = BytesIO(f.read())
+                img = Image.open(img_bytes)
+                images.append(img)
+                os.remove("drivetemppic")
+            #no image found
+
             else:
                 images.append(None)
         return images
